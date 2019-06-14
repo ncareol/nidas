@@ -92,6 +92,7 @@ status_listener
 sync_server
 xml_dump
 isff/datasets
+isff/prep
 """)
 
 # For all these targets, wherever PREFIX is used, it should use
@@ -141,15 +142,6 @@ if sdconf.CheckLibWithHeader('','linux/i2c-dev.h','C',
 sdenv = sdconf.Finish()
 sdenv.Append(CPPFLAGS='-Wno-effc++')
 env.Alias('sync_dump', sdenv.NidasProgram(SDSRCS))
-
-ncenv = env.Clone()
-try:
-    if pc.CheckConfig(env, 'pkg-config nc_server'):
-        ncenv.MergeFlags('!pkg-config --cflags nc_server')
-except OSerror:
-    pass
-
-ncenv.NidasProgram('isff/prep.cc')
 
 # Programs which only use libnidas_util.so, not libnidas.
 env.NidasUtilProgram('sing.cc')
