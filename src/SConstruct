@@ -61,6 +61,8 @@ opts.Add(BoolVariable('PSQL_ENABLE', 'Build PSQL modules when detected.',
                       'off'))
 opts.Add(BoolVariable('LINUX_MODULES', 
                       'Build linux modules when possible.', 'on'))
+opts.Add(BoolVariable('BUILD_NC_SERVER',
+                      'Build src/nc-server when it exists in source tree.', 'off'))
 opts.Add('REPO_TAG', '\n'
          '  git tag of the source, in the form "vX.Y", when building\n'
          '  outside of a git repository')

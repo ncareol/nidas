@@ -86,23 +86,6 @@ conf.CheckFunc("ppoll")
 
 conf.CheckFunc("epoll_pwait")
 
-# It seems like for cross-builds the PKG_CONFIG_PATH needs to be adjusted
-# accordingly, or maybe the path to pkg-config needs to be set, such as
-# /opt/arcom/bin/armbe-linux-pkg-config.  However, the closest thing to
-# this I've found is in scripts/build_nidas.sh.  Maybe that kind of
-# customization should be in the scons arm*cross tools.
-pc.ParseConfig(conf.env, 'pkg-config --cflags --libs nc_server')
-if conf.CheckLib('nc_server_rpc') and conf.CheckLibWithHeader(
-        'nc_server_rpc', 'nc_server_rpc.h','C++',
-        'xdr_connection(0,0);'):
-    # append nc_server library to build environment
-    # I don't grok all the issues related to using RPATH. Debian
-    # advises against it in most, but not all situations. We'll
-    # enable it here and see what happens...
-    env.AppendUnique(CPPPATH=conf.env['CPPPATH'])
-    env.AppendUnique(LIBS=conf.env['LIBS'],LIBPATH=conf.env['LIBPATH'],
-                     RPATH=conf.env['LIBPATH'])
-
 pc.ParseConfig(conf.env, 'pkg-config --libs gsl')
 if conf.CheckCXXHeader('gsl/gsl_linalg.h') and conf.CheckLibWithHeader(
         'gsl', 'gsl/gsl_linalg.h','C',
@@ -136,14 +119,29 @@ env.Install('$ARCHPREFIX/include/nidas/linux',info2)
 #   -Ibuild/include
 env.PrependUnique(CPPPATH = ['#', Dir('.').Dir('include')])
 
-subdirs=Split("""util core dynld apps linux""")
+SConscript('util/SConscript', duplicate=0, exports=['env'])
+SConscript('linux/SConscript', duplicate=0, exports=['env'])
+SConscript('core/SConscript', duplicate=0, exports=['env'])
 
-for dir in subdirs:
-    SConscript('%s/SConscript' % dir,
-               duplicate=0,exports=['env'])
+# If nc-server exists in this source tree, build it against the
+# local util library, and then build dynld with nc-server support.
+ncsc = env.File("#/nc-server/SConstruct")
+if ncsc.exists() and env.get('BUILD_NC_SERVER'):
+    vdir = 'nc-server'
+    print("Loading nc-server SConstruct for arch '%s'" % (arch))
+    env['NIDAS_NC_SERVER_BUILD'] = True
+    # ...keep the rest of the nidas environments separate...
+    ncsenv = env.Clone()
+    SConscript(ncsc, variant_dir=vdir, duplicate=0, exports={'env':ncsenv})
 
-Alias('lib', subdirs[0:3])
-Clean('lib', subdirs[0:3])
+# For the rest of the source, add nc_server setup.
+env.Require('nc_server')
+
+SConscript('dynld/SConscript', duplicate=0, exports=['env'])
+SConscript('apps/SConscript', duplicate=0, exports=['env'])
+
+Alias('lib', Split("util core dynld"))
+Clean('lib', Split("util core dynld"))
 
 env.Alias('install', ['$ARCHPREFIX/include', '$ARCHPREFIX/$ARCHLIBDIR'])
 
