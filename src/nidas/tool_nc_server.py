@@ -17,7 +17,7 @@ def nc_server(env):
     # /opt/arcom/bin/armbe-linux-pkg-config.  However, the closest thing to
     # this I've found is in scripts/build_nidas.sh.  Maybe that kind of
     # customization should be in the scons arm*cross tools.
-    
+
     # If nc-server exists in the source tree, then use it.
     local_nc_server = env.get('NIDAS_NC_SERVER_BUILD', False)
 
@@ -49,5 +49,5 @@ def nc_server(env):
                              RPATH=conf.env['LIBPATH'])
 
     conf.Finish()
-    
+
 Export('nc_server')
