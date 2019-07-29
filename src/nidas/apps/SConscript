@@ -20,7 +20,9 @@ import eol_scons
 import eol_scons.parseconfig as pc
 
 def check_pkg_config(env, pkg):
-    found = pc.ParseConfig(env, 'pkg-config %s --libs --cflags' % (pkg))
+    found = pc.CheckConfig(env, 'pkg-config %s' % (pkg))
+    if found:
+        pc.ParseConfig(env, 'pkg-config %s --libs --cflags' % (pkg))
     print("pkg-config found for %s: %s" % (pkg, ["no", "yes"][int(found)]))
     return found
 
