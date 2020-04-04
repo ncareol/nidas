@@ -37,8 +37,10 @@
 #include <nidas/core/Socket.h>
 #include <nidas/core/SocketAddrs.h>
 #include <nidas/core/XMLException.h>
-#include <nidas/dynld/RawSampleInputStream.h>
+// #include <nidas/dynld/RawSampleInputStream.h>
 #include <nidas/core/requestXMLConfig.h>
+
+#include <nidas/dynld/A2DSensor.h>
 
 #include <iostream>
 #include <iomanip>
@@ -537,10 +539,11 @@ showHostNames(const Project& project)
     }
 }
 
-
+extern int nidas::dynld::NIDAS_DYNLD_LINK_ME_DAMMIT;
 
 int main(int argc, char** argv)
 {
+    cerr << "force link=" << nidas::dynld::NIDAS_DYNLD_LINK_ME_DAMMIT << endl;
     NidasApp app("ck_xml");
     PConfig pconfig;
 

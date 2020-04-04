@@ -41,6 +41,10 @@ using namespace std;
 
 namespace n_u = nidas::util;
 
+namespace nidas { namespace dynld {
+int NIDAS_DYNLD_LINK_ME_DAMMIT;
+}}
+
 A2DSensor::A2DSensor() :
     DSMSensor(),_sampleCfgs(),_sampleInfos(),
     _badRawSamples(0),_maxNChannels(0),

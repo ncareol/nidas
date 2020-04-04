@@ -37,6 +37,8 @@
 
 namespace nidas { namespace dynld {
 
+extern int NIDAS_DYNLD_LINK_ME_DAMMIT;
+
 using namespace nidas::core;
 
 /**
