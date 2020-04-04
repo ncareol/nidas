@@ -32,6 +32,7 @@
 #include "DOMObjectFactory.h"
 #include "XDOM.h"
 #include "XMLStringConverter.h"
+#include "DynamicLoader.h"
 
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/util/XMLString.hpp>
@@ -150,9 +151,13 @@ private:
 
 #define NIDAS_CREATOR_FUNCTION(CLASSNAME) \
 extern "C" {\
-    nidas::core::DOMable* create_nidas_dynld_##CLASSNAME()\
+    nidas::core::DOMable* create_nidas_dynld_ ##CLASSNAME()\
     {\
 	return new nidas::dynld::CLASSNAME();\
+    }\
+    void __attribute__((constructor)) register_nidas_dynld_ ## CLASSNAME()\
+    {\
+        nidas::core::DynamicLoader::add("create_nidas_dynld_" #CLASSNAME, (void*)create_nidas_dynld_ ## CLASSNAME);\
     }\
 }
 
@@ -164,9 +169,13 @@ extern "C" {\
  */
 #define NIDAS_CREATOR_FUNCTION_NS(NS,CLASSNAME) \
 extern "C" {\
-    nidas::core::DOMable* create_nidas_dynld_##NS##_##CLASSNAME()\
+    nidas::core::DOMable* create_nidas_dynld_ ## NS ## _ ## CLASSNAME()\
     {\
 	return new nidas::dynld::NS::CLASSNAME();\
+    }\
+    void __attribute__((constructor)) register_nidas_dynld_ ## NS ## _ ## CLASSNAME()\
+    {\
+        nidas::core::DynamicLoader::add("create_nidas_dynld_" #CLASSNAME,(void*)create_nidas_dynld_ ## NS ## _ ## CLASSNAME);\
     }\
 }
 

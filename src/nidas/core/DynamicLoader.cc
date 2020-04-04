@@ -34,6 +34,7 @@ namespace n_u = nidas::util;
 
 DynamicLoader* DynamicLoader::_instance = 0;
 n_u::Mutex DynamicLoader::_instanceLock;
+std::map<std::string,void*> DynamicLoader::_sym_map;
 
 DynamicLoader* DynamicLoader::getInstance() throw(n_u::Exception) {
     if (!_instance) {
@@ -41,6 +42,11 @@ DynamicLoader* DynamicLoader::getInstance() throw(n_u::Exception) {
 	if (!_instance) _instance = new DynamicLoader();
     }
     return _instance;
+}
+
+void DynamicLoader::add(const std::string& name, void* ptr) {
+    std::cerr << "adding " << name << " to _sym_map" << std::endl;
+    _sym_map[name] = ptr;
 }
 
 DynamicLoader::DynamicLoader() throw(n_u::Exception): _defhandle(0),_libhandles()
@@ -63,6 +69,12 @@ DynamicLoader::
 lookup(const std::string& name) throw(n_u::Exception) 
 {
     n_u::Synchronized autosync(_instanceLock);
+
+    std::map<std::string,void*>::const_iterator fi = _sym_map.find(name);
+    if (fi != _sym_map.end()) {
+        std::cerr << "found " << name << " in _sym_map" << std::endl;
+        return fi->second;
+    }
 
     dlerror();  // clear existing error
     void* sym = dlsym(_defhandle,name.c_str());
@@ -103,6 +115,12 @@ lookup(const std::string& library,const std::string& name)
     // has no control of calls to dl routines outside of this class.
 
     n_u::Synchronized autosync(_instanceLock);
+
+    std::map<std::string,void*>::const_iterator fi = _sym_map.find(name);
+    if (fi != _sym_map.end()) {
+        std::cerr << "found " << name << " in _sym_map" << std::endl;
+        return fi->second;
+    }
 
     std::map<std::string,void*>::iterator mi = _libhandles.find(library);
 

@@ -47,6 +47,8 @@ public:
      */
     static DynamicLoader* getInstance() throw(nidas::util::Exception);
 
+    static void add(const std::string& name, void* ptr);
+
     /**
      * Search the main program itself, and its currently loaded
      * libraries for a symbol. Throws an exception if the lookup fails.
@@ -102,6 +104,8 @@ private:
     static DynamicLoader* _instance;
 
     static nidas::util::Mutex _instanceLock;
+
+    static std::map<std::string,void*> _sym_map;
 
 };
 
