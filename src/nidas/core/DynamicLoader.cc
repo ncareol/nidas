@@ -72,9 +72,10 @@ lookup(const std::string& name) throw(n_u::Exception)
 
     std::map<std::string,void*>::const_iterator fi = _sym_map.find(name);
     if (fi != _sym_map.end()) {
-        std::cerr << "found " << name << " in _sym_map" << std::endl;
+        std::cerr << name << " found in _sym_map" << std::endl;
         return fi->second;
     }
+    std::cerr << name << " not found in _sym_map" << std::endl;
 
     dlerror();  // clear existing error
     void* sym = dlsym(_defhandle,name.c_str());
@@ -118,9 +119,10 @@ lookup(const std::string& library,const std::string& name)
 
     std::map<std::string,void*>::const_iterator fi = _sym_map.find(name);
     if (fi != _sym_map.end()) {
-        std::cerr << "found " << name << " in _sym_map" << std::endl;
+        std::cerr << name << " found in _sym_map" << std::endl;
         return fi->second;
     }
+    std::cerr << name << " not found in _sym_map" << std::endl;
 
     std::map<std::string,void*>::iterator mi = _libhandles.find(library);
 
