@@ -151,7 +151,7 @@ private:
 
 #define NIDAS_CREATOR_FUNCTION(CLASSNAME) \
 extern "C" {\
-    nidas::core::DOMable* create_nidas_dynld_ ##CLASSNAME()\
+    nidas::core::DOMable* create_nidas_dynld_ ## CLASSNAME()\
     {\
 	return new nidas::dynld::CLASSNAME();\
     }\
@@ -175,7 +175,7 @@ extern "C" {\
     }\
     void __attribute__((constructor)) register_nidas_dynld_ ## NS ## _ ## CLASSNAME()\
     {\
-        nidas::core::DynamicLoader::add("create_nidas_dynld_" #CLASSNAME,(void*)create_nidas_dynld_ ## NS ## _ ## CLASSNAME);\
+        nidas::core::DynamicLoader::add("create_nidas_dynld_" #NS "_" #CLASSNAME,(void*)create_nidas_dynld_ ## NS ## _ ## CLASSNAME);\
     }\
 }
 
