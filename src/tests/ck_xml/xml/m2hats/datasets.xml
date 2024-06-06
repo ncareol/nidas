@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<datasets>
+    <dataset name="noqc_instrument"
+        description="no QC, winds in instrument, non-tilt corrected coordinates"
+        resolution="300">
+        <envvar name="NETCDF_DIR"
+		value="$ISFS/projects/$PROJECT/ISFS/netcdf/$DATASET"/>
+        <envvar name="NETCDF_FILE" value="isfs_%Y%m%d.nc"/>
+        <envvar name="NETCDL_FILE" value="m2hats.cdl"/>
+        <envvar name="WIND3D_HORIZ_COORDINATES" value="instrument"/>
+        <envvar name="WIND3D_HORIZ_ROTATION" value="false"/>
+        <envvar name="WIND3D_TILT_CORRECTION" value="false"/>
+        <envvar name="CSAT3_CKCNTR" value="true"/>
+        <envvar name="CSAT3_INIT" value="true"/>
+        <envvar name="CSAT3_SHADOW_FACTOR" value="0.16"/>
+        <envvar name="RMY_SHADOW_FACTOR" value="0.0"/>
+    </dataset>
+    <dataset name="noqc_geo"
+        description="no QC, winds in geographic, not tilted coordinates"
+        resolution="300">
+        <envvar name="NETCDF_DIR"
+		value="$ISFS/projects/$PROJECT/ISFS/netcdf/$DATASET"/>
+        <envvar name="NETCDF_FILE" value="isfs_%Y%m%d.nc"/>
+        <envvar name="NETCDL_FILE" value="m2hats.cdl"/>
+        <envvar name="WIND3D_HORIZ_COORDINATES" value="geographic"/>
+        <envvar name="WIND3D_HORIZ_ROTATION" value="true"/>
+        <envvar name="WIND3D_TILT_CORRECTION" value="false"/>
+        <envvar name="CSAT3_CKCNTR" value="true"/>
+        <envvar name="CSAT3_INIT" value="true"/>
+        <envvar name="CSAT3_SHADOW_FACTOR" value="0.16"/>
+        <envvar name="RMY_SHADOW_FACTOR" value="0.0"/>
+    </dataset>
+    <dataset name="qc_geo_tiltcor"
+        description="QC, winds in geographic, tilt corrected coordinates"
+        resolution="300">
+        <envvar name="NETCDF_DIR" value="$ISFS/projects/$PROJECT/ISFS/netcdf/$DATASET"/>
+        <envvar name="NETCDF_FILE" value="isfs_m2hats_qc_geo_tiltcor_5min_%Y%m%d.nc"/>
+        <envvar name="NETCDL_FILE" value="m2hats.cdl"/>
+        <envvar name="WIND3D_HORIZ_COORDINATES" value="geographic"/>
+        <envvar name="WIND3D_HORIZ_ROTATION" value="true"/>
+        <envvar name="WIND3D_TILT_CORRECTION" value="true"/>
+        <envvar name="CSAT3_CKCNTR" value="true"/>
+        <envvar name="CSAT3_INIT" value="true"/>
+        <envvar name="CSAT3_SHADOW_FACTOR" value="0.16"/>
+        <envvar name="RMY_SHADOW_FACTOR" value="0.0"/>
+    </dataset>
+    <dataset name="hr_qc_geo_tiltcor"
+        description="High rate QC winds in geographic coordinates, sonic tilt corrected"
+        resolution="0.05">
+        <envvar name="NETCDF_DIR"
+		value="$ISFS/projects/$PROJECT/ISFS/netcdf/$DATASET"/>
+        <envvar name="NETCDF_FILE" value="isfs_m2hats_qc_geo_tiltcor_hr_%Y%m%d_%H.nc"/>
+        <envvar name="NETCDL_FILE" value="m2hats.cdl"/>
+        <envvar name="WIND3D_HORIZ_COORDINATES" value="geographic"/>
+        <envvar name="WIND3D_HORIZ_ROTATION" value="true"/>
+        <envvar name="WIND3D_TILT_CORRECTION" value="true"/>
+        <envvar name="CSAT3_CKCNTR" value="true"/>
+        <envvar name="CSAT3_INIT" value="true"/>
+        <envvar name="CSAT3_SHADOW_FACTOR" value="0.16"/>
+        <envvar name="RMY_SHADOW_FACTOR" value="0.0"/>
+    </dataset>
+    <dataset name="hr_qc_geo"
+        description="High rate QC winds in geographic coordinates"
+        resolution="0.05">
+        <envvar name="NETCDF_DIR"
+                value="$ISFS/projects/$PROJECT/ISFS/netcdf/$DATASET"/>
+        <envvar name="NETCDF_FILE" value="isfs_m2hats_qc_hr_geo_%Y%m%d_%H.nc"/>
+        <envvar name="NETCDL_FILE" value="m2hats.cdl"/>
+        <envvar name="WIND3D_HORIZ_COORDINATES" value="geographic"/>
+        <envvar name="WIND3D_HORIZ_ROTATION" value="true"/>
+        <envvar name="WIND3D_TILT_CORRECTION" value="false"/>
+        <envvar name="CSAT3_CKCNTR" value="true"/>
+        <envvar name="CSAT3_INIT" value="true"/>
+        <envvar name="CSAT3_SHADOW_FACTOR" value="0.16"/>
+        <envvar name="RMY_SHADOW_FACTOR" value="0.0"/>
+    </dataset>
+    <dataset name="hr_noqc_geo"
+        description="High rate winds in geographic coordinates"
+        resolution="0.05">
+        <envvar name="NETCDF_DIR"
+		value="$ISFS/projects/$PROJECT/ISFS/netcdf/$DATASET"/>
+        <envvar name="NETCDF_FILE" value="isfs_m2hats_noqc_geo_hr_%Y%m%d_%H.nc"/>
+        <envvar name="NETCDL_FILE" value="m2hats.cdl"/>
+        <envvar name="WIND3D_HORIZ_COORDINATES" value="geographic"/>
+        <envvar name="WIND3D_HORIZ_ROTATION" value="true"/>
+        <envvar name="WIND3D_TILT_CORRECTION" value="false"/>
+        <envvar name="CSAT3_CKCNTR" value="true"/>
+        <envvar name="CSAT3_INIT" value="true"/>
+        <envvar name="CSAT3_SHADOW_FACTOR" value="0.16"/>
+        <envvar name="RMY_SHADOW_FACTOR" value="0.0"/>
+    </dataset>
+</datasets>

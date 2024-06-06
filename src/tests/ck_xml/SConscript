@@ -6,10 +6,11 @@ from SCons.Script import Environment
 env = Environment(tools=['default', 'nidasapps'])
 
 ck_xml = env.NidasApp('ck_xml')
+datasets = env.NidasApp('datasets')
 
-depends = ["run_test.sh", ck_xml]
+depends = ["run_test.sh", ck_xml, datasets]
 runtest = env.Command("xtest1", depends,
-                      ["cd $SOURCE.dir && ./run_test.sh"])
+                      ["cd $SOURCE.dir && ./run_test.sh --valgrind"])
 
 env.Precious(runtest)
 env.AlwaysBuild(runtest)

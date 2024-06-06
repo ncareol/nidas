@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2021 UCAR, NCAR, All Rights Reserved -->
+
+<project
+    xmlns="http://www.eol.ucar.edu/nidas"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    name="M2HATS"
+    system="ISFS"
+    maxStation="1"
+    version="$Revision: 4555 $">
+
+<!--
+    xsi:schemaLocation="http://www.eol.ucar.edu/nidas nidas.xsd"
+-->
+
+    <parameter name="wind3d_horiz_coordinates" type="string" value="$WIND3D_HORIZ_COORDINATES"/>
+    <parameter name="wind3d_horiz_rotation" type="bool" value="$WIND3D_HORIZ_ROTATION"/>
+    <parameter name="wind3d_tilt_correction" type="bool" value="$WIND3D_TILT_CORRECTION"/>
+
+    <xi:include href="sensor_catalog.xml" parse="xml"/>
+
+    <dsmcatalog>
+<!-- Core configuration for all DSMs -->
+        <dsm ID="CORE" rserialPort="30002">
+
+            <serialSensor IDREF="Garmin_GPS" id="2">
+            </serialSensor>
+
+            <serialSensor IDREF="CHRONY_TRACKING_LOG" id="8">
+            </serialSensor>
+
+            <output class="RawSampleOutputStream">
+                <socket type="server" port="30000" maxIdle="60" block="false"/>
+            </output>
+
+            <output class="RawSampleOutputStream">
+                <socket type="udp" address="localhost"
+                    port="30012" block="false"/>
+		</output>
+	    
+            <output class="RawSampleOutputStream">
+                <fileset dir="$DATAMNT/projects/${PROJECT}/raw_data"
+                        file="${DSM}_%Y%m%d_%H%M%S.dat"
+                        length="43200">
+                <mount dir="$DATAMNT"/>
+                </fileset>
+            </output>
+        </dsm>
+
+<!-- Core configuration for all DSMs with Victrons -->
+        <dsm ID="COREV" IDREF="CORE">
+            <serialSensor IDREF="PWRMONV" devicename="/dev/ttyPWRMONV" id="1000">
+            </serialSensor>
+        </dsm>
+    </dsmcatalog>
+
+<!-- profile towers -->
+    <site name="t0" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="t0b" id="110">
+            <!-- override suffix for multiple chrony + gps entries at site t0 -->
+            <serialSensor devicename="usock::32947" suffix=".t0b"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t0b"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t0"/>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM0" height="" id="1010" suffix=".1m.t0">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM1" height="" id="1012" suffix=".1m.t0">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM2" id="1014" suffix=".1m.t0">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM3" height="" id="1020" suffix=".2m.t0">
+            </serialSensor>
+	    <!-- 2m TRH moved to t0t, port 4 is bad 
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM4" height="" id="1022" suffix=".2m.t0">
+            </serialSensor> -->
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM5" id="1024" suffix=".2m.t0">
+            </serialSensor>
+	    <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM6" height="" id="1050" suffix=".0.5m.t0">
+            </serialSensor>
+	    <serialSensor IDREF="Nano" devicename="/dev/ttyDSM7" id="1054" suffix=".0.5m.t0">
+            </serialSensor>
+
+      </dsm>
+      <dsm IDREF="CORE" name="t0t" id="120">
+	    <!-- override suffix for multiple chrony + gps entries at site t0 -->
+	    <serialSensor devicename="usock::32947" suffix=".t0t"/>
+	    <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t0t"/>
+
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM0" height="" id="1030" suffix=".3m.t0">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM1" height="" id="1032" suffix=".3m.t0">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM2" id="1034" suffix=".3m.t0">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM3" height="" id="1040" suffix=".4m.t0">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM4" height="" id="1042" suffix=".4m.t0">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM5" id="1044" suffix=".4m.t0">
+            </serialSensor>
+	    <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM6" height="" id="1052" suffix=".0.5m.t0">
+            </serialSensor>
+	    <!-- 2m TRH moved from t0b port 4 which is bad -->
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM7" height="" id="1022" suffix=".2m.t0">
+            </serialSensor>
+
+
+      </dsm>
+
+      <dsm IDREF="COREV" name="ttb" id="130">
+            <!-- override suffix for multiple chrony + gps entries at site tt -->
+            <serialSensor devicename="usock::32947" suffix=".ttb"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".ttb"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".tt"/>
+
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM0" height="" id="1070" suffix=".7m.t0">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM1" height="" id="1072" suffix=".7m.t0">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM2" id="1074" suffix=".7m.t0">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM3" height="" id="1170" suffix=".15m.t0">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM4" height="" id="1172" suffix=".15m.t0">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM5" id="1174" suffix=".15m.t0">
+            </serialSensor>
+      </dsm>
+      <dsm IDREF="CORE" name="ttt" id="140">
+            <!-- override suffix for multiple chrony + gps entries at site tt -->
+            <serialSensor devicename="usock::32947" suffix=".ttt"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".ttt"/>
+
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM0" height="" id="1320" suffix=".28m.t0">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM1" height="" id="1322" suffix=".28m.t0">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM2" id="1324" suffix=".28m.t0">
+            </serialSensor>
+            <serialSensor IDREF="PARSIVEL2" devicename="/dev/ttyDSM7" id="2000" suffix=".t0">
+            </serialSensor>
+      </dsm>
+    </site>
+
+<!-- tower horizontal line -->
+    <site name="t2" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="2">
+	    <!-- add suffix for chrony, gps, victron entries at site t2 -->
+            <serialSensor devicename="usock::32947" suffix=".t2"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t2"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t2"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="10" suffix=".4m.t1">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="20" suffix=".4m.t2">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="22" suffix=".4m.t2">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="24" suffix=".4m.t2">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM5" height="" id="30" suffix=".4m.t3">
+            </serialSensor>
+<!-- 4m sonic in original t0 location. -->
+            <serialSensor IDREF="CSAT3A_BIN" devicename="/dev/ttyDSM6" height="" id="500" suffix=".4m.t0p">
+            </serialSensor>
+<!-- Soils and NR01 at the start of the line -->
+            <serialSensor IDREF="V28" devicename="/dev/ttyDSM7" height="" id="1020" suffix=".t2">
+            </serialSensor>
+      </dsm>
+    </site>
+
+    <site name="t5" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="5">
+	    <!-- add suffix for chrony, gps, victron entries at site t5 -->
+            <serialSensor devicename="usock::32947" suffix=".t5"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t5"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t5"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="40" suffix=".4m.t4">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="50" suffix=".4m.t5">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="52" suffix=".4m.t5">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="54" suffix=".4m.t5">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM5" height="" id="60" suffix=".4m.t6">
+            </serialSensor>
+      </dsm>
+    </site>
+    <site name="t8" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="8">
+	    <!-- add suffix for chrony, gps, victron entries at site t8 -->
+            <serialSensor devicename="usock::32947" suffix=".t8"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t8"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t8"/>
+
+            <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM0" height="" id="70" suffix=".4m.t7">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="80" suffix=".4m.t8">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="82" suffix=".4m.t8">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="84" suffix=".4m.t8">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3A_BIN" devicename="/dev/ttyDSM5" height="" id="90" suffix=".4m.t9">
+            </serialSensor>
+      </dsm>
+    </site>
+
+    <site name="t11" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="11">
+	    <!-- add suffix for chrony, gps, victron entries at site t11 -->
+            <serialSensor devicename="usock::32947" suffix=".t11"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t11"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t11"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM6" height="" id="100" suffix=".4m.t10">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="110" suffix=".4m.t11">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="112" suffix=".4m.t11">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="114" suffix=".4m.t11">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM5" height="" id="120" suffix=".4m.t12">
+            </serialSensor>
+      </dsm>
+    </site>
+    <site name="t14" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="14">
+	    <!-- add suffix for chrony, gps, victron entries at site t14 -->
+            <serialSensor devicename="usock::32947" suffix=".t14"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t14"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t14"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="130" suffix=".4m.t13">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="140" suffix=".4m.t14">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="142" suffix=".4m.t14">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="144" suffix=".4m.t14">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3A_BIN_20" devicename="/dev/ttyDSM5" height="" id="150" suffix=".4m.t15">
+            </serialSensor>
+      </dsm>
+    </site>
+
+    <site name="t17" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="17">
+	    <!-- add suffix for chrony, gps, victron entries at site t17 -->
+            <serialSensor devicename="usock::32947" suffix=".t17"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t17"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t17"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="160" suffix=".4m.t16">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="170" suffix=".4m.t17">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="172" suffix=".4m.t17">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="174" suffix=".4m.t17">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM5" height="" id="180" suffix=".4m.t18">
+            </serialSensor>
+      </dsm>
+    </site>
+    <site name="t20" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="20">
+            <!-- add suffix for chrony, gps, victron entries at site t20 -->
+            <serialSensor devicename="usock::32947" suffix=".t20"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t20"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t20"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="190" suffix=".4m.t19">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="200" suffix=".4m.t20">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="202" suffix=".4m.t20">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="204" suffix=".4m.t20">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3A_BIN_20" devicename="/dev/ttyDSM5" height="" id="210" suffix=".4m.t21">
+            </serialSensor>
+      </dsm>
+    </site>
+
+    <site name="t23" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="23">
+	    <!-- add suffix for chrony, gps, victron entries at site t23 -->
+            <serialSensor devicename="usock::32947" suffix=".t23"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t23"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t23"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="220" suffix=".4m.t22">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="230" suffix=".4m.t23">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="232" suffix=".4m.t23">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="234" suffix=".4m.t23">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM5" height="" id="240" suffix=".4m.t24">
+            </serialSensor>
+<!-- Soils in the middle of the line -->
+            <serialSensor IDREF="V28soils" devicename="/dev/ttyDSM7" height="" id="1230" suffix=".t23">
+            </serialSensor>
+      </dsm>
+    </site>
+    <site name="t26" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="26">
+	    <!-- add suffix for chrony, gps, victron entries at site t26 -->
+            <serialSensor devicename="usock::32947" suffix=".t26"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t26"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t26"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="250" suffix=".4m.t25">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="260" suffix=".4m.t26">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="262" suffix=".4m.t26">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="264" suffix=".4m.t26">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3A_BIN" devicename="/dev/ttyDSM5" height="" id="270" suffix=".4m.t27">
+            </serialSensor>
+      </dsm>
+    </site>
+
+    <site name="t29" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="29">
+	    <!-- add suffix for chrony, gps, victron entries at site t29 -->
+            <serialSensor devicename="usock::32947" suffix=".t29"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t29"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t29"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="280" suffix=".4m.t28">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="290" suffix=".4m.t29">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="292" suffix=".4m.t29">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="294" suffix=".4m.t29">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM5" height="" id="300" suffix=".4m.t30">
+            </serialSensor>
+      </dsm>
+    </site>
+    <site name="t32" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="32">
+	    <!-- add suffix for chrony, gps, victron entries at site t32 -->
+            <serialSensor devicename="usock::32947" suffix=".t32"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t32"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t32"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="310" suffix=".4m.t31">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="320" suffix=".4m.t32">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="322" suffix=".4m.t32">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="324" suffix=".4m.t32">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM5" height="" id="330" suffix=".4m.t33">
+            </serialSensor>
+      </dsm>
+    </site>
+
+    <site name="t35" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="35">
+	    <!-- add suffix for chrony, gps, victron entries at site t35 -->
+            <serialSensor devicename="usock::32947" suffix=".t35"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t35"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t35"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="340" suffix=".4m.t34">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="350" suffix=".4m.t35">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="352" suffix=".4m.t35">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="354" suffix=".4m.t35">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM5" height="" id="360" suffix=".4m.t36">
+            </serialSensor>
+      </dsm>
+    </site>
+    <site name="t38" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="38">
+	    <!-- add suffix for chrony, gps, victron entries at site t38 -->
+            <serialSensor devicename="usock::32947" suffix=".t38"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t38"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t38"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="370" suffix=".4m.t37">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="380" suffix=".4m.t38">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="382" suffix=".4m.t38">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="384" suffix=".4m.t38">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM5" height="" id="390" suffix=".4m.t39">
+            </serialSensor>
+      </dsm>
+    </site>
+
+    <site name="t41" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="41">
+	    <!-- add suffix for chrony, gps, victron entries at site t41 -->
+            <serialSensor devicename="usock::32947" suffix=".t41"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t41"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t41"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="400" suffix=".4m.t40">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="410" suffix=".4m.t41">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="412" suffix=".4m.t41">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="414" suffix=".4m.t41">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM5" height="" id="420" suffix=".4m.t42">
+            </serialSensor>
+      </dsm>
+    </site>
+    <site name="t44" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="44">
+	    <!-- add suffix for chrony, gps, victron entries at site t44 -->
+            <serialSensor devicename="usock::32947" suffix=".t44"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t44"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t44"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="430" suffix=".4m.t43">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="440" suffix=".4m.t44">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="442" suffix=".4m.t44">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="444" suffix=".4m.t44">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM5" height="" id="450" suffix=".4m.t45">
+            </serialSensor>
+      </dsm>
+    </site>
+
+    <site name="t47" class="isff.GroundStation" suffix="">
+      <dsm IDREF="COREV" name="${SITE}" id="47">
+	    <!-- add suffix for chrony, gps, victron entries at site t47 -->
+            <serialSensor devicename="usock::32947" suffix=".t47"/>
+            <serialSensor devicename="/var/log/chrony/tracking.log" suffix=".t47"/>
+            <serialSensor devicename="/dev/ttyPWRMONV" suffix=".t47"/>
+
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM0" height="" id="460" suffix=".4m.t46">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="" id="470" suffix=".4m.t47">
+            </serialSensor>
+            <serialSensor IDREF="NCAR_SHT" devicename="/dev/ttyDSM3" height="" id="472" suffix=".4m.t47">
+            </serialSensor>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="474" suffix=".4m.t47">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM5" height="" id="480" suffix=".4m.t48">
+            </serialSensor>
+            <serialSensor IDREF="CSAT3" devicename="/dev/ttyDSM6" height="" id="490" suffix=".4m.t49">
+            </serialSensor>
+<!-- Soils/NR01 at the very end of the line -->
+            <serialSensor IDREF="V28" devicename="/dev/ttyDSM7" height="" id="1490" suffix=".t49">
+            </serialSensor>
+      </dsm>
+    </site>
+
+   <server name='localhost'>
+      <service class="RawSampleService" rawSorterLength="0"
+	       procSorterLength="0" priority="RT_RR:50">
+          <input class="RawSampleInputStream">
+	      <socket type="udp" port="30012"/>
+	  </input>
+          <processor class="SampleArchiver">
+              <output class="RawSampleOutputStream">
+                  <socket type="server" port="30000" block="false" maxIdle="120"/>
+              </output>
+              <output class="RawSampleOutputStream">
+                  <socket type="server" path="/tmp/nidas_socket"
+			  block="false" maxIdle="120"/>
+              </output>
+	      <output class="RawSampleOutputStream">
+                  <fileset dir="$DATAMNT/projects/${PROJECT}/$DATADIR"
+                           file="isfs_%Y%m%d_%H%M%S.dat.bz2"
+                           length="14400">
+                  </fileset>
+              </output>
+
+          </processor>
+
+      </service>
+   </server>
+
+   <server name='barolo'>
+      <service class="RawSampleService" rawSorterLength="0"
+	       procSorterLength="0" priority="RT_RR:50">
+          <input class="RawSampleInputStream">
+	      <socket type="udp" port="30012"/>
+	  </input>
+          <processor class="SampleArchiver">
+              <output class="RawSampleOutputStream">
+                  <socket type="server" port="30000" block="false" maxIdle="120"/>
+              </output>
+              <output class="RawSampleOutputStream">
+                  <socket type="server" path="/tmp/nidas_socket"
+			  block="false" maxIdle="120"/>
+              </output>
+	      <output class="RawSampleOutputStream">
+                  <fileset dir="$DATAMNT/projects/${PROJECT}/$DATADIR"
+                           file="isfs_%Y%m%d_%H%M%S.dat.bz2"
+                           length="14400">
+                  </fileset>
+              </output>
+
+          </processor>
+
+      </service>
+   </server>
+
+</project>

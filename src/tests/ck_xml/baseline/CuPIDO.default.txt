@@ -1,0 +1,104 @@
+site:n,stn#1, sensor: n:/dev/ttyS9(1,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:n,stn#1, sensor: n:/dev/ttyS2(1,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:n,stn#1, sensor: n:/dev/ttyS4(1,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:n,stn#1, sensor: n:/dev/ttyS5(1,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet
+-----------------------------------------
+site:e,stn#4, sensor: e:/dev/ttyS9(4,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:e,stn#4, sensor: e:/dev/ttyS2(4,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:e,stn#4, sensor: e:/dev/ttyS4(4,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:e,stn#4, sensor: e:/dev/ttyS5(4,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet
+-----------------------------------------
+site:s,stn#6, sensor: s:/dev/ttyS9(6,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:s,stn#6, sensor: s:/dev/ttyS2(6,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:s,stn#6, sensor: s:/dev/ttyS4(6,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:s,stn#6, sensor: s:/dev/ttyS5(6,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet
+-----------------------------------------
+site:sw,stn#7, sensor: sw:/dev/ttyS9(7,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:sw,stn#7, sensor: sw:/dev/ttyS2(7,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:sw,stn#7, sensor: sw:/dev/ttyS4(7,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:sw,stn#7, sensor: sw:/dev/ttyS5(7,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet
+-----------------------------------------
+site:w,stn#8, sensor: w:/dev/ttyS9(8,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:w,stn#8, sensor: w:/dev/ttyS2(8,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:w,stn#8, sensor: w:/dev/ttyS4(8,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:w,stn#8, sensor: w:/dev/ttyS5(8,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet
+-----------------------------------------
+site:wnw,stn#9, sensor: wnw:/dev/ttyS9(9,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:wnw,stn#9, sensor: wnw:/dev/ttyS2(9,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:wnw,stn#9, sensor: wnw:/dev/ttyS4(9,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:wnw,stn#9, sensor: wnw:/dev/ttyS5(9,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet
+-----------------------------------------
+site:ne,stn#2, sensor: ne:/dev/ttyS9(2,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:ne,stn#2, sensor: ne:/dev/ttyS2(2,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:ne,stn#2, sensor: ne:/dev/ttyS4(2,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:ne,stn#2, sensor: ne:/dev/ttyS5(2,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet,Tsurf,Rpile.in,Rpile.out,Rsw.in,Rsw.out,Tcase.in,Tdome.in,Tcase.out,Tdome.out,Tsoil,Gsoil,Vqsoil,Qsoil,Vpile,Vheat,Tau63
+site:ne,stn#2, sensor: ne:/dev/ttyS6(2,70),isff.CSAT3_Sonic
+  samp#1: u.7m,v.7m,w.7m,tc.7m,diag.7m,spd.7m,dir.7m,uflag.7m,vflag.7m,wflag.7m,tcflag.7m
+  samp#2: kh2oV.7m,kh2o.7m
+-----------------------------------------
+site:ene,stn#3, sensor: ene:/dev/ttyS9(3,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:ene,stn#3, sensor: ene:/dev/ttyS2(3,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:ene,stn#3, sensor: ene:/dev/ttyS4(3,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:ene,stn#3, sensor: ene:/dev/ttyS5(3,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet,Tsurf,Rpile.in,Rpile.out,Rsw.in,Rsw.out,Tcase.in,Tdome.in,Tcase.out,Tdome.out,Tsoil,Gsoil,Vqsoil,Qsoil,Vpile,Vheat,Tau63
+site:ene,stn#3, sensor: ene:/dev/ttyS6(3,70),isff.CSAT3_Sonic
+  samp#1: u.7m,v.7m,w.7m,tc.7m,diag.7m,spd.7m,dir.7m,uflag.7m,vflag.7m,wflag.7m,tcflag.7m
+  samp#2: kh2oV.7m,kh2o.7m
+-----------------------------------------
+site:sse,stn#5, sensor: sse:/dev/ttyS9(5,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:sse,stn#5, sensor: sse:/dev/ttyS2(5,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:sse,stn#5, sensor: sse:/dev/ttyS4(5,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:sse,stn#5, sensor: sse:/dev/ttyS5(5,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet,Tsurf,Rpile.in,Rpile.out,Rsw.in,Rsw.out,Tcase.in,Tdome.in,Tcase.out,Tdome.out,Tsoil,Gsoil,Vqsoil,Qsoil,Vpile,Vheat,Tau63
+site:sse,stn#5, sensor: sse:/dev/ttyS6(5,70),isff.CSAT3_Sonic
+  samp#1: u.7m,v.7m,w.7m,tc.7m,diag.7m,spd.7m,dir.7m,uflag.7m,vflag.7m,wflag.7m,tcflag.7m
+  samp#2: kh2oV.7m,kh2o.7m
+site:sse,stn#5, sensor: sse:/dev/ttyS7(5,80),DSMSerialSensor
+  samp#1: co2raw.7m,co2.7m,h2oraw.7m,h2o.7m,Tcell.7m,Pcell.7m
+-----------------------------------------
+site:nnw,stn#10, sensor: nnw:/dev/ttyS9(10,20),DSMSerialSensor
+  samp#1: P.2m,Tbaro.2m
+site:nnw,stn#10, sensor: nnw:/dev/ttyS2(10,30),DSMSerialSensor
+  samp#1: T.2m,RH.2m,Vbatt.2m
+site:nnw,stn#10, sensor: nnw:/dev/ttyS4(10,40),isff.PropVane
+  samp#1: Spd.10m,Dir.10m,U.10m,V.10m
+site:nnw,stn#10, sensor: nnw:/dev/ttyS5(10,60),DSMSerialSensor
+  samp#1: Vbatt.rad,Rain,Rnet,Tsurf,Rpile.in,Rpile.out,Rsw.in,Rsw.out,Tcase.in,Tdome.in,Tcase.out,Tdome.out,Tsoil,Gsoil,Vqsoil,Qsoil,Vpile,Vheat,Tau63
+site:nnw,stn#10, sensor: nnw:/dev/ttyS6(10,70),isff.CSAT3_Sonic
+  samp#1: u.7m,v.7m,w.7m,tc.7m,diag.7m,spd.7m,dir.7m,uflag.7m,vflag.7m,wflag.7m,tcflag.7m
+  samp#2: kh2oV.7m,kh2o.7m
+-----------------------------------------
