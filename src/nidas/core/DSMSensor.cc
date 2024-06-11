@@ -616,8 +616,9 @@ const string DSMSensor::getClassName(const xercesc::DOMElement* node,
 
 void DSMSensor::fromDOMElement(const xercesc::DOMElement* node)
 {
-    handledAttributes({"xml:base", "xmlns"});
-    logNode(node);
+    DOMableContext dmc(this, "DSMSensor: ", node);
+    handledAttributes({"xml:base", "xmlns", "ID"});
+    handledElements({"sample", "parameter", "calfile"});
 
     /*
      * The first time DSMSensor::fromDOMElement is called for

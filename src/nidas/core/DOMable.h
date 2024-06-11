@@ -94,8 +94,8 @@ private:
  * via the toDOMParent/toDOMElement method.
  */
 class DOMable {
-    using handled_attributes_t = std::vector<std::string>;
 public:
+    using handled_attributes_t = std::vector<std::string>;
 
     /**
      * Virtual destructor.
@@ -160,7 +160,12 @@ protected:
     /**
      * Register a list of attribute names that are handled by this DOMable.
      */
-    void handledAttributes(const std::vector<std::string>& names);
+    void handledAttributes(const handled_attributes_t& names);
+
+    /**
+     * Add to the list of elements handled for this node.
+     */
+    void handledElements(const handled_attributes_t& names);
 
     /**
      * Lookup an attribute with name @p name and return the value as a string
@@ -222,6 +227,7 @@ private:
     // Subclasses of DOMable can register the attributes they handle, so that
     // base class implementations can detect unhandled attributes.
     handled_attributes_t _handled_attributes{};
+    handled_attributes_t _handled_elements{};
 
     std::vector<std::string> _contexts{};
 };

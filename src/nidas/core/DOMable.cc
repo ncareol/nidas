@@ -148,6 +148,13 @@ DOMable::handledAttributes(const std::vector<std::string>& names)
 }
 
 
+void DOMable::handledElements(const handled_attributes_t& names)
+{
+    for (auto& name: names)
+        _handled_elements.push_back(name);
+}
+
+
 bool DOMable::getAttribute(const xercesc::DOMElement* node,
                            const std::string& name, std::string& value)
 {
@@ -234,19 +241,41 @@ int DOMable::asInt(const std::string& value, const std::string& iname)
 
 void DOMable::checkUnhandledAttributes(const xercesc::DOMElement* node)
 {
-    if (!node || !node->hasAttributes())
+    if (!node)
         return;
-    xercesc::DOMNamedNodeMap *pAttributes = node->getAttributes();
-    int nSize = pAttributes->getLength();
-    auto begin = _handled_attributes.begin();
-    auto end = _handled_attributes.end();
-    for (int i = 0; i < nSize; ++i) {
-        XDOMAttr attr((xercesc::DOMAttr*) pAttributes->item(i));
-        const string& aname = attr.getName();
-        if (std::find(begin, end, aname) == end)
-        {
-            throw InvalidParameterException(context() +
-                                            ": unknown attribute " + aname);
+
+    // check for unhandled attributes
+    if (node->hasAttributes())
+    {
+        xercesc::DOMNamedNodeMap *pAttributes = node->getAttributes();
+        int nSize = pAttributes->getLength();
+        auto begin = _handled_attributes.begin();
+        auto end = _handled_attributes.end();
+        for (int i = 0; i < nSize; ++i) {
+            XDOMAttr attr((xercesc::DOMAttr*) pAttributes->item(i));
+            const string& aname = attr.getName();
+            if (std::find(begin, end, aname) == end)
+            {
+                throw InvalidParameterException(context() +
+                                                ": unknown attribute " + aname);
+            }
+        }
+    }
+
+    // check for unhandled elements
+    xercesc::DOMNode* child;
+    auto begin = _handled_elements.begin();
+    auto end = _handled_elements.end();
+    for (child = node->getFirstChild(); child != 0;
+        child=child->getNextSibling())
+    {
+        if (child->getNodeType() != xercesc::DOMNode::ELEMENT_NODE) continue;
+        XDOMElement xchild((xercesc::DOMElement*) child);
+        const string& elname = xchild.getNodeName();
+
+        if (std::find(begin, end, elname) == end) {
+            throw InvalidParameterException(
+                context() + ": unknown element " + elname);
         }
     }
 }
