@@ -14,8 +14,10 @@ valgrind=""
 
 if [ "$1" == "--valgrind" ]; then
     valgrind="valgrind --suppressions=suppressions.txt --leak-check=full --gen-suppressions=all"
+    shift
 fi
 
+xtest="$1"
 
 check_valgrind()
 {
@@ -66,6 +68,8 @@ run_ck_xml() # cmd output
 find -L xml -name "*.xml" | grep -vE "sensor_catalog|datasets|stats" | \
 while read xml ; do
 
+    xmltest=`basename $xml .xml`
+    [ -n "$xtest" -a "$xmltest" != "$xtest" ] && continue
     xmldir=`dirname "$xml"`
     if [ -f "$xmldir/datasets.xml" ]; then
         eval `datasets "$xmldir/datasets.xml" -b noqc_geo`
@@ -73,7 +77,7 @@ while read xml ; do
 
     # for each xml example, generate the default ck_xml output and also the
     # variables list.
-    outbase="output/`basename $xml .xml`"
+    outbase="output/$xmltest"
     run_ck_xml "ck_xml $xml" "${outbase}.default.txt"
     run_ck_xml "ck_xml --variables $xml" "${outbase}.variables.txt"
 
