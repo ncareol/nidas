@@ -157,17 +157,46 @@ Variable::~Variable()
 
 void Variable::setSiteSuffix(const string& val)
 {
+    VLOG(("") << "setSiteSuffix(" << val << ")");
     // don't repeat site suffix, in case
     // user has only set full name with setName().
     if (_siteSuffix.length() == 0 && _suffix.length() == 0) {
-	unsigned nl = _name.length();
-	unsigned vl = val.length();
-	if (vl > 0 && nl > vl && _name.substr(nl-vl,vl) == val)
-	    _prefix = _name.substr(0,nl-vl);
+        unsigned nl = _name.length();
+        unsigned vl = val.length();
+        if (vl > 0 && nl > vl && _name.substr(nl-vl,vl) == val)
+            _prefix = _name.substr(0,nl-vl);
     }
     _siteSuffix = val;
-    _name = _prefix + _suffix + _siteSuffix;
+    updateName();
 }
+
+
+void Variable::updateName()
+{
+    string site = _siteSuffix;
+    string suffix = _suffix;
+    // if the site suffix begins with ?, then do not append it
+    // if this variable already has a suffix.
+    if (site.length() > 0 && site[0] == '?')
+    {
+        if (_suffix.length()) {
+            site = "";
+        }
+        else {
+            site = site.substr(1);
+        }
+    }
+    if (suffix.length() && suffix[0] == '!') {
+        site = "";
+        suffix = suffix.substr(1);
+    }
+    _name = _prefix + suffix + site;
+    _nameWithoutSite = _prefix + suffix;
+    VLOG(("") << "prefix=" << _prefix << ", suffix=" << _suffix
+              << ", site=" << _siteSuffix << ": name => " << _name);
+}
+
+
 
 void Variable::setSampleTag(const SampleTag* val)
 { 
@@ -204,29 +233,6 @@ bool Variable::operator == (const Variable& x) const
 bool Variable::operator != (const Variable& x) const
 {
     return !operator == (x);
-}
-
-bool Variable::operator < (const Variable& x) const
-{
-    if (operator == (x)) return false;
-
-    if (getLength() != x.getLength()) return getLength() < x.getLength();
-
-    int ic =  getNameWithoutSite().compare(x.getNameWithoutSite());
-    if (ic != 0) return ic < 0;
-
-    // names are equal, but variables aren't. Must be a site difference
-    
-    const Site* s1 = getSite();
-    const Site* s2 = x.getSite();
-    if (!s1) {
-        if (s2) return true;
-    }
-    else if (!s2) return false;
-
-    // either both sites are unknown, or equal
-    assert(false);
-    return false;
 }
 
 bool Variable::closeMatch(const Variable& x) const

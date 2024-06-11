@@ -75,8 +75,6 @@ public:
 
     bool operator != (const Variable& x) const;
 
-    bool operator < (const Variable& x) const;
-
     /**
      * A more loose check of the equivalence of two variables,
      * This will also return a value of true if either Site is NULL.
@@ -163,8 +161,7 @@ public:
     void setPrefix(const std::string& val)
     {
         _prefix = val;
-        _name = _prefix + _suffix + _siteSuffix;
-        _nameWithoutSite = _prefix + _suffix;
+        updateName();
     }
 
     const std::string& getPrefix() const { return _prefix; }
@@ -181,8 +178,7 @@ public:
     void setSuffix(const std::string& val)
     {
         _suffix = val;
-        _name = _prefix + _suffix + _siteSuffix;
-        _nameWithoutSite = _prefix + _suffix;
+        updateName();
     }
 
     /**
@@ -200,8 +196,7 @@ public:
         _suffix.clear();
         _siteSuffix.clear();
         _prefix = val;
-        _name = _prefix;
-        _nameWithoutSite = _prefix;
+        updateName();
     }
 
     const std::string& getName() const { return _name; }
@@ -420,6 +415,12 @@ public:
 private:
 
     void setSiteSuffix(const std::string& val);
+
+    /**
+     * Any time _prefix, _suffix, or _siteSuffix are updated, this method
+     * must be called to update _name.
+     */
+    void updateName();
 
     std::string _name;
 
