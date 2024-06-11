@@ -116,6 +116,19 @@ public:
     const Site* getSite() const;
 
     /**
+     * Set the Site for this sensor, then propagate the setting to any
+     * sample tags and variables.
+     */
+    void setSite(Site* site);
+
+    /**
+     * First resolve the given @p site_name to a Site, then set it with
+     * setSite().  Throw InvalidArgumentException if the name cannot be found
+     * among sites in the containing Project.
+     */
+    void setSite(const std::string& site_name);
+
+    /**
      * Set the name of the system device that the sensor
      * is connected to.
      * @param val Name of device, e.g. "/dev/xxx0".
@@ -980,7 +993,7 @@ protected:
 
     SampleScanner* getSampleScanner() const { return _scanner; }
 
-    void setFullSuffix(const std::string& val) { _fullSuffix = val; }
+    void setFullSuffix(const std::string& val);
 
     /**
      * Fetch a pointer to a static instance of a Looper thread.
@@ -1177,6 +1190,12 @@ private:
     SampleScanner* _scanner;
 
     const DSMConfig* _dsm;
+
+    /**
+     * A DSMSensor can be associated with a different Site than the DSM which
+     * records it.  If this is not set, then the site will be the DSM site.
+     */
+    const Site* _site{nullptr};
 
     /**
      * Id of this sensor.  Raw samples from this sensor will

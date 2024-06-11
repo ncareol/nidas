@@ -305,6 +305,7 @@ void SerialSensor::fromDOMElement(const xercesc::DOMElement* node)
                     aname, aval);
             }
         }
+        else if (aname == "site");
         else if (aname == "nullterm");
         else if (aname == "init_string");
         else if (aname == "suffix");

@@ -276,6 +276,7 @@
     <xsd:attribute name="latency" type="xsd:float"/>
     <xsd:attribute name="height" type="xsd:token"/>
     <xsd:attribute name="depth" type="xsd:token"/>
+    <xsd:attribute name="site" type="xsd:token"/>
     <xsd:attribute name="duplicateIdOK" type="xsd:boolean"/>
     <xsd:attribute name="timeout" type="xsd:float"/>
     <xsd:attribute name="readonly" type="xsd:boolean"/>

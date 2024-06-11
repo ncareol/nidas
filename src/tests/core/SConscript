@@ -7,7 +7,7 @@ env = Environment(tools=['default', 'nidasapps', 'valgrind',
 
 tests = env.Program('tcore', ["tcore.cc", "tsamples.cc",
                               "tutil.cc", "tcalfile.cc",
-                              "tbadsamplefilter.cc"])
+                              "tdom.cc", "tbadsamplefilter.cc"])
 
 cmd = "echo $$LD_LIBRARY_PATH && ./$SOURCE.file"
 runtest = env.Command("xtest", tests, env.ChdirActions([cmd]))

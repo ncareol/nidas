@@ -223,27 +223,15 @@ void CharacterSensor::validateSscanfs()
 
 void CharacterSensor::fromDOMElement(const xercesc::DOMElement* node)
 {
-
     DSMSensor::fromDOMElement(node);
 
-    XDOMElement xnode(node);
+    std::string aval;
+    if (getAttribute(node, "init_string", aval))
+        setInitString(aval);
 
-    if(node->hasAttributes()) {
-    // get all the attributes of the node
-	xercesc::DOMNamedNodeMap *pAttributes = node->getAttributes();
-	int nSize = pAttributes->getLength();
-	for(int i=0;i<nSize;++i) {
-	    XDOMAttr attr((xercesc::DOMAttr*) pAttributes->item(i));
-	    // get attribute name
-	    const std::string& aname = attr.getName();
-	    const std::string& aval = attr.getValue();
+    // accepted but no longer used.
+    handledAttributes({"nullterm"});
 
-	    if (aname == "nullterm") { }
-	    else if (aname == "init_string")
-		setInitString(aval);
-
-	}
-    }
     xercesc::DOMNode* child;
     for (child = node->getFirstChild(); child != 0;
 	    child=child->getNextSibling())

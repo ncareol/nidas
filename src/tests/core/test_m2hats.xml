@@ -1,0 +1,142 @@
+<project
+    xmlns="http://www.eol.ucar.edu/nidas"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    name="M2HATS"
+    system="ISFS"
+    maxStation="1"
+    version="$Revision: 4555 $">
+
+    <sensorcatalog>
+
+    <serialSensor ID="Garmin_GPS" class="GPS_NMEA_Serial" devicename="usock::32947">
+        <!-- GGA record -->
+        <sample id="1" rate="1">
+            <variable name="Lat" units="degree_N" longname="GPS Latitude" plotrange="$LAT_RANGE"/>
+            <variable name="Lon" units="degree_E" longname="GPS Longitude" plotrange="$LON_RANGE"/>
+            <variable name="GPSqual" units="none" longname="GPS Qual, 0=inval,1=GPS,2=DGPS" plotrange="0 3"/>
+            <variable name="GPSnsat" units="count" longname="Number of GPS satellites tracked" plotrange="0 14"/>
+            <variable name="GPShordil" units="none" longname="Horizontal dilution of position"/>
+            <variable name="Alt" units="m" longname="GPS Altitude (MSL)" plotrange="$ALT_RANGE"/>
+            <variable name="GPSgeoidht" units="m" longname="Height of geoid (MSL) above WGS84 ellipsoid" plotrange="-50 50"/>
+        </sample>
+        <!-- RMC record -->
+        <sample id="2" rate="1">
+            <variable name="GPSstat" units="none" longname="GPS rcvr status: 1=OK(A), 0=warning(V)" plotrange="-1 2"/>
+            <variable name="GPSdiff" units="s" longname="GPS NMEA receipt time - NMEA time value" plotrange="0 2"/>
+        </sample>
+        <message separator="\n" position="end" length="0"/>
+    </serialSensor>
+
+    <serialSensor class="isff.CSI_IRGA_Sonic" ID="CSAT3_IRGA_BIN"
+        baud="115200" parity="none" databits="8" stopbits="1">
+        <parameter name="bandwidth" type="float" value="5"/>
+        <calfile name="offsets_angles"
+            path="$ISFS/projects/$PROJECT/ISFS/cal_files/d${SUFFIX}:$ISFS/projects/$PROJECT/ISFS/cal_files"
+            file="csat.dat"/>
+        <calfile name="abc2uvw"
+            path="$ISFS/projects/$PROJECT/ISFS/cal_files"
+            file="csat_abc2uvw.dat"/>
+        <sample id="1" rate="60">
+            <variable name="u" units="m/s" longname="Wind U component, CSAT3" plotrange="$UV_RANGE"/>
+            <variable name="v" units="m/s" longname="Wind V component, CSAT3" plotrange="$UV_RANGE"/>
+            <variable name="w" units="m/s" longname="Wind W component, CSAT3" plotrange="$W_RANGE"/>
+            <variable name="tc" units="degC" longname="Virtual air temperature from speed of sound, CSAT3"
+                plotrange="$T_RANGE"/>
+            <variable name="diagbits" units=""
+                longname="CSAT3 diagnostic sum, 1=low sig,2=high sig,4=no lock,8=path diff,16=skipped samp"
+                plotrange="$DIAG_RANGE"/>
+            <variable name="co2" units="mg/m^3" longname="CO2 density from CSI IRGA" 
+                     plotrange="$CO2_RANGE" minValue="0.00" maxValue="10.0">
+                <linear units="g/m^3">
+                    <calfile
+                        path="$ISFS/projects/$PROJECT/ISFS/cal_files/d$SUFFIX"
+                        file="irga_co2.dat"/>
+                </linear>
+            </variable>
+            <variable name="h2o" units="g/m^3" longname="Water vapor density from CSI IRGA" 
+                     plotrange="$H2O_RANGE" minValue="0" maxValue="100.0">
+                <linear>
+                    <calfile
+                        path="$ISFS/projects/$PROJECT/ISFS/cal_files/d$SUFFIX"
+                        file="irga_h2o.dat"/>
+                </linear>
+            </variable>
+            <variable name="irgadiag" units="" longname="CSI IRGA diagnostic" plotrange="$DIAG_RANGE"/>
+            <variable name="Tirga" units="degC" longname="CSI IRGA temperature" plotrange="$T_RANGE">
+        </variable>
+        <variable name="Pirga" units="kPa" longname="CSI IRGA pressure">
+        <linear units="mb" slope="10" intercept="0.0" plotrange="$P_RANGE"/>
+        </variable>
+            <variable name="SSco2" units="" longname="CSI IRGA CO2 signal strength" plotrange="0 10"/>
+            <variable name="SSh2o" units="" longname="CSI IRGA H2O signal strength" plotrange="0 10"/>
+            <variable name="dPirga" units="mb" longname="CSI IRGA differential pressure" plotrange="100 300"/>
+            <!-- Tirga_src, Tirga_det are not in binary output of software version EC100.04.2. Results will be nan -->
+            <variable name="ldiag" units="" longname="CSAT3 logical diagnostic, 0=OK, 1=(diagbits!=0)" plotrange="$LDIAG_RANGE"/>
+            <variable name="spd" units="m/s" longname="CSAT3 horizontal wind speed" plotrange="$SPD_RANGE"/>
+            <variable name="dir" units="deg" longname="CSAT3 wind direction" plotrange="0 360"/>
+        </sample>
+        <message separator="\x55\xaa" position="end" length="58"/>
+    </serialSensor>
+
+    <!-- Paroscientific 6000 nano-barometer -->
+    <serialSensor ID="Nano" class="DSMSerialSensor"
+        baud="9600" parity="none" databits="8" stopbits="1"
+        init_string="*0100P4\r\n" timeout="10">
+        <sample id="1" scanfFormat="*%*4d%f" rate="19.8">
+            <variable name="P" units="mb" longname="Barometric Pressure, Paroscientific 6000" plotrange="$P_RANGE">
+                <linear>
+                    <calfile
+            path="$ISFS/projects/$PROJECT/ISFS/cal_files/d${SUFFIX}:$ISFS/projects/$PROJECT/ISFS/cal_files"
+                        file="P.dat"/>
+                </linear>
+            </variable>
+        </sample>
+        <message separator="\n" position="end" length="0"/>
+    </serialSensor>
+
+    </sensorcatalog>
+
+    <dsmcatalog>
+        <dsm ID="CORE" rserialPort="30002">
+
+            <serialSensor IDREF="Garmin_GPS" id="2">
+            </serialSensor>
+
+            <output class="RawSampleOutputStream">
+                <fileset dir="$DATAMNT/projects/${PROJECT}/raw_data"
+                        file="${DSM}_%Y%m%d_%H%M%S.dat"
+                        length="43200">
+                <mount dir="$DATAMNT"/>
+                </fileset>
+            </output>
+        </dsm>
+    </dsmcatalog>
+
+    <site name="t0" class="isff.GroundStation" suffix=".${SITE}">
+
+        <dsm IDREF="CORE" name="t0b" id="110">
+            <!-- override suffix for multiple chrony + gps entries at site t0 -->
+            <serialSensor devicename="usock::32947" suffix="!.${DSM}"/>
+
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM0" height="1m" id="1010"/>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM7" id="1054" height="0.5m"/>
+        </dsm>
+
+    </site>
+
+    <site name="t1" class="isff.GroundStation" suffix=".${SITE}">
+    </site>
+
+    <site name="t2" class="isff.GroundStation" suffix=".${SITE}">
+        <dsm IDREF="CORE" name="${SITE}" id="2">
+            <!-- add suffix for chrony, gps, victron entries at site t2 -->
+            <serialSensor devicename="usock::32947"/>
+
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM1" site="t1" height="2m" id="220"/>
+            <serialSensor IDREF="CSAT3_IRGA_BIN" devicename="/dev/ttyDSM2" height="2m" id="20"/>
+            <serialSensor IDREF="Nano" devicename="/dev/ttyDSM4" id="24" height="2m"/>
+        </dsm>
+    </site>
+
+</project>
