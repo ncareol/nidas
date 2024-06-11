@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- Copyright 2005 UCAR, NCAR, All Rights Reserved -->
+
+<project
+    xmlns="http://www.eol.ucar.edu/nidas"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.eol.ucar.edu/nidas nidas.xsd"
+    name="TrailCone"
+    system="GV_N677F"
+    config="$PROJ_DIR/TrailCone/GV_N677F/nidas/default.xml"
+    version="$LastChangedRevision$"
+    >
+
+    <site name="GV_N677F" class="raf.Aircraft">
+    <parameter name="tailNumber" value="N677F" type="string"/>
+
+    <dsm name="dsm304" location="cabin_mpdb" id="4" rserialPort="30002">
+
+        <sensor class="raf.DSMAnalogSensor" devicename="/dev/dsma2d0" id="200">
+            <sample id="1" rate="500">
+                <variable name="DPL" units="V" longname="Dew/Frost Point Temperature, Fuselage Left">
+                    <parameter name="gain" value="2" type="float"/>
+                    <parameter name="bipolar" value="false" type="bool"/>
+                    <parameter name="corSlope" value="1.052057" type="float"/>
+                    <parameter name="corIntercept" value="-0.355214" type="float"/>
+		    <linear slope="12.5" intercept="-75.0" units="deg_C">
+                        <!-- for testing of SyncRecordSource and Reader -->
+                        <calfile file="bozo.dat" path="/tmp"/>
+                    </linear>
+                </variable>
+                <variable name="DPR" units="V" longname="Dew/Frost Point Temperature, Fuselage Right">
+                    <parameter name="gain" value="2" type="float"/>
+                    <parameter name="bipolar" value="false" type="bool"/>
+                    <parameter name="corSlope" value="1.0538739" type="float"/>
+                    <parameter name="corIntercept" value="-0.3317972" type="float"/>
+		    <linear slope="12.5" intercept="-75.0" units="deg_C"/>
+                </variable>
+            </sample>
+        </sensor>
+
+        <output class="RawSampleOutputStream">
+            <socket type="mcrequest"/>
+        </output>
+    </dsm>
+
+    <dsm name="dsm305" location="radome" id="5" rserialPort="30002">
+
+        <sensor class="raf.DSMAnalogSensor" devicename="/dev/dsma2d0" id="200">
+            <sample id="1" rate="500">
+                <variable name="DUMMY1" units="V" longname="Place Holder">
+                    <parameter name="gain" value="4" type="float"/>
+                    <parameter name="bipolar" value="false" type="bool"/>
+                    <parameter name="corSlope" value="1.0" type="float"/>
+                    <parameter name="corIntercept" value="0.0" type="float"/>
+                </variable>
+                <variable name="TTRL" units="V" longname="Total Temperature, Radome Left">
+                    <parameter name="gain" value="4" type="float"/>
+                    <parameter name="bipolar" value="false" type="bool"/>
+                    <parameter name="corSlope" value="1.0536" type="float"/>
+                    <parameter name="corIntercept" value="-0.21812" type="float"/>
+                    <poly coefs="-85.1976 24.0712 0.142686" units="deg_C"/>
+                </variable>
+                <variable name="DUMMY2" units="V" longname="Place Holder">
+                    <parameter name="gain" value="4" type="float"/>
+                    <parameter name="bipolar" value="false" type="bool"/>
+                    <parameter name="corSlope" value="1.0" type="float"/>
+                    <parameter name="corIntercept" value="0.0" type="float"/>
+                </variable>
+                <variable name="TTHR1" units="V" longname="Total Temperature, Deiced Right">
+                    <parameter name="gain" value="4" type="float"/>
+                    <parameter name="bipolar" value="false" type="bool"/>
+                    <parameter name="corSlope" value="1.0468" type="float"/>
+                    <parameter name="corIntercept" value="-0.18654" type="float"/>
+                    <poly coefs="-89.1641 25.9026 -0.065487" units="deg_C"/>
+                </variable>
+                <variable name="DUMMY3" units="V" longname="Place Holder">
+                    <parameter name="gain" value="4" type="float"/>
+                    <parameter name="bipolar" value="false" type="bool"/>
+                    <parameter name="corSlope" value="1.0" type="float"/>
+                    <parameter name="corIntercept" value="0.0" type="float"/>
+                </variable>
+                <variable name="TTHR2" units="V" longname="Total Temperature, Deiced Right">
+                    <parameter name="gain" value="4" type="float"/>
+                    <parameter name="bipolar" value="false" type="bool"/>
+                    <parameter name="corSlope" value="1.0346" type="float"/>
+                    <parameter name="corIntercept" value="-0.16355" type="float"/>
+                    <poly coefs="-89.5243 26.1173 -0.0785575" units="deg_C"/>
+                </variable>
+            </sample>
+        </sensor>
+
+        <output class="RawSampleOutputStream">
+            <socket type="mcrequest"/>
+        </output>
+
+    </dsm>
+
+</site>
+</project>

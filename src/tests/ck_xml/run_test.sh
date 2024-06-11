@@ -45,7 +45,12 @@ run_ck_xml() # cmd output
     cmd="$1"
     output="$2"
     echo "$cmd > $output"
-    $cmd > $output 2>&1 || exit 1
+    $cmd > $output 2>&1
+    if [ $? -ne 0 ]; then
+        echo Failed.
+        tail $output
+        exit 1
+    fi
     sed -i -e '/deprecated/d' $output
 
     diff baseline/`basename $output` $output || exit 1
@@ -58,7 +63,7 @@ run_ck_xml() # cmd output
 }
 
 
-find xml -name "*.xml" | grep -vE "sensor_catalog|datasets" | \
+find -L xml -name "*.xml" | grep -vE "sensor_catalog|datasets|stats" | \
 while read xml ; do
 
     xmldir=`dirname "$xml"`

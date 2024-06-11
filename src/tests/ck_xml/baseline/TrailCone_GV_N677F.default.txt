@@ -1,0 +1,6 @@
+site:GV_N677F, sensor: dsm304:/dev/dsma2d0(4,200),raf.DSMAnalogSensor
+  samp#1: DPL,DPR
+-----------------------------------------
+site:GV_N677F, sensor: dsm305:/dev/dsma2d0(5,200),raf.DSMAnalogSensor
+  samp#1: DUMMY1,TTRL,DUMMY2,TTHR1,DUMMY3,TTHR2
+-----------------------------------------
