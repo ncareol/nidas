@@ -90,14 +90,10 @@ class SampleTag : public DOMable
 public:
 
     /**
-     * Constructor.
+     * Constructor of a sample tag for a given sensor, or a default
+     * constructor if @p sensor is null.
      */
-    SampleTag();
-
-    /**
-     * Constructor of a sample for a given sensor.
-     */
-    SampleTag(const DSMSensor* sensor);
+    SampleTag(const DSMSensor* sensor = nullptr);
 
     /**
      * Copy constructor.
@@ -112,8 +108,8 @@ public:
      * Set the sample portion of the shortId.
      */
     void setSampleId(unsigned int val) {
-	_sampleId = val;
-        _id = SET_SPS_ID(_id,_sensorId + _sampleId);
+        _sampleId = val;
+        _id = SET_SPS_ID(_id, _sensorId + _sampleId);
     }
 
     /**
@@ -167,6 +163,11 @@ public:
 
     const DSMSensor* getDSMSensor() const { return _sensor; }
 
+    /**
+     * Set the DSMSensor to which this SampleTag belongs, and also update all
+     * properties are derived from the sensor, including Sensor ID, DSM ID,
+     * DSMConfig, suffix, and station.
+     */
     void setDSMSensor(const DSMSensor* val);
 
     /**
@@ -341,6 +342,11 @@ public:
      **/
     xercesc::DOMElement*
     toDOMElement(xercesc::DOMElement* node,bool complete) const;
+
+    /**
+     * Return a string description of this SampleTag.
+     */
+    std::string toString() const;
 
 protected:
 

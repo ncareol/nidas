@@ -42,29 +42,24 @@ using namespace std;
 
 namespace n_u = nidas::util;
 
-SampleTag::SampleTag():
-    _id(0),_sampleId(0),_sensorId(0),_suffix(),
-    _station(-1),
-    _rate(0.0),
-    _processed(true),_dsm(0),_sensor(0),
-    _constVariables(),_variables(),_variableNames(),
-    _scanfFormat(),_promptString(), _promptOffset(0.0),
-    _parameters(), _constParameters(),_enabled(true),
-     _ttAdjustVal(-1.0)
-{}
-
 SampleTag::SampleTag(const DSMSensor* sensor):
     _id(0),_sampleId(0),_sensorId(0),_suffix(),
-    _station(sensor->getStation()),
+    _station(-1),
     _rate(0.0),_processed(true),
-    _dsm(sensor->getDSMConfig()),_sensor(sensor),
+    _dsm(0),_sensor(sensor),
     _constVariables(),_variables(),_variableNames(),
     _scanfFormat(),_promptString(), _promptOffset(0.0),
     _parameters(), _constParameters(),_enabled(true),
      _ttAdjustVal(-1.0)
 {
-    setSensorId(_sensor->getId());
-    if (_dsm) setDSMId(_dsm->getId());
+    if (_sensor)
+    {
+        _station = sensor->getStation();
+        setSensorId(_sensor->getId());
+        _dsm = sensor->getDSMConfig();
+    }
+    if (_dsm)
+        setDSMId(_dsm->getId());
 }
 
 /* copy constructor */
@@ -157,8 +152,19 @@ void SampleTag::addVariable(Variable* var)
 void SampleTag::setDSMSensor(const DSMSensor* val)
 {
     _sensor = val;
-    if (_sensor) _dsm = _sensor->getDSMConfig();
+    if (_sensor)
+    {
+        setDSMConfig(_sensor->getDSMConfig());
+        for (auto var: _variables) {
+            var->setSite(_sensor->getSite());
+        }
+        setSensorId(_sensor->getSensorId());
+        setDSMId(_sensor->getDSMId());
+        setSuffix(_sensor->getFullSuffix());
+        setStation(_sensor->getStation());
+    }
 }
+
 void SampleTag::setStation(int val)
 {
     _station = val;
@@ -172,6 +178,10 @@ void SampleTag::setStation(int val)
 const Site* SampleTag::getSite() const
 {
     const Site* site = 0;
+    // probably sensor is never null, and probably it will have a dsm pointer
+    // if this tag does, but this is just in case since it's not always clear
+    // where and how sample tags get constructed.
+    if (_sensor) site = _sensor->getSite();
     if (_dsm) site = _dsm->getSite();
     return site;
 }
@@ -199,12 +209,9 @@ void SampleTag::removeVariable(const Variable* var)
 void SampleTag::setSuffix(const std::string& val)
 {
     _suffix = val;
-    for (vector<Variable*>::const_iterator vi = _variables.begin();
-    	vi != _variables.end(); ++vi) {
-	Variable* var = *vi;
-	var->setSuffix(_suffix);
+    for (auto var: _variables) {
+        var->setSuffix(_suffix);
     }
-
 }
 
 const std::vector<const Variable*>& SampleTag::getVariables() const
@@ -260,9 +267,7 @@ const Parameter* SampleTag::getParameter(const string& name) const
 
 void SampleTag::fromDOMElement(const xercesc::DOMElement* node)
 {
-
-    const Site* site = 0;
-    if (_dsm) site = _dsm->getSite();
+    const Site* site = getSite();
 
     string suffix;
 
@@ -493,4 +498,18 @@ xercesc::DOMElement* SampleTag::toDOMElement(xercesc::DOMElement* elem,
         var->toDOMParent(elem,complete);
     }
     return elem;
+}
+
+
+std::string SampleTag::toString() const {
+    std::ostringstream out;
+    out << "SampleTag(" << GET_DSM_ID(_id) << "," << GET_SPS_ID(_id) << "): ";
+    out << "suffix=" << _suffix << "; station=" << _station << "; "
+        << "dsm=" << (_dsm ? _dsm->getName() : "")
+        << "; sensor=" << (_sensor ? _sensor->getName() : "")
+        << "; variables=";
+    int nvar{0};
+    for (auto vp: _variables)
+        out << (nvar++ ? "," : "") << vp->getName();
+    return out.str();
 }
