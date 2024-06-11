@@ -41,7 +41,52 @@
 #include <xercesc/dom/DOMException.hpp>
 #include <xercesc/dom/DOMNamedNodeMap.hpp>
 
+#include <vector>
+#include <string>
+#include <typeinfo>
+
 namespace nidas { namespace core {
+
+class DOMable;
+
+/**
+ * DOMableContext is a scoped object associated with a DOMable instance.  Upon
+ * construction, tt sets the context in the DOMable and increments the DOMable
+ * context counter.  Then on destruction, it decrements the counter.  When the
+ * counter reaches zero, then the DOMable instance is called to check for
+ * unhandled attributes.
+ * 
+ * DOMable subclasses can use this object to trigger the unhanlded attribute
+ * check after all calls of fromDOMElement() up the class chain are finished.
+ * Without it, an implement of fromDOMElement() does not know if it is the
+ * most derived class instance or not.
+ * 
+ * This is a template so the type of the this parameter can be captured, since
+ * the type will be exactly the class whose fromDOMElement() implemnetation is
+ * being called, rather than the most derived type returned by rtti.
+ */
+class DOMableContext
+{
+public:
+    DOMableContext(DOMable* domable, const std::string& context,
+                   const xercesc::DOMElement* node=0);
+
+    /**
+     * The destructor calls checkUnhandledExceptions() if this is the last
+     * context on the stack, so it has to be allowed to propagate exceptions
+     * instead of calling terminate().  There are no resources allocated by
+     * this class, so it is safe to throw through the destructor.
+     */
+    ~DOMableContext() noexcept(false);
+
+    DOMableContext(const DOMableContext&) = delete;
+    DOMableContext& operator=(const DOMableContext&) = delete;
+
+private:
+    DOMable* _domable{nullptr};
+    const xercesc::DOMElement* _node{nullptr};
+};
+
 
 /**
  * Interface of an object that can be instantiated from a DOM element,
@@ -49,6 +94,7 @@ namespace nidas { namespace core {
  * via the toDOMParent/toDOMElement method.
  */
 class DOMable {
+    using handled_attributes_t = std::vector<std::string>;
 public:
 
     /**
@@ -79,17 +125,107 @@ public:
     virtual xercesc::DOMElement*
     toDOMElement(xercesc::DOMElement* node, bool complete) const;
 
-    static const XMLCh* getNamespaceURI() {
-	if (!namespaceURI) namespaceURI =
-		xercesc::XMLString::transcode(
-		        "http://www.eol.ucar.edu/nidas");
-        return namespaceURI;
+    static const XMLCh* getNamespaceURI();
+
+protected:
+
+    /**
+     * Log information about this node.
+     */
+    void logNode(const xercesc::DOMElement* node);
+
+    /**
+     * Push a context onto the stack, logging the new context and information
+     * about the current node.
+     */
+    void pushContext(const std::string& context,
+                     const xercesc::DOMElement* node=0);
+
+    /**
+     * Pop a context off the stack.  If this is the last context, then call
+     * checkUnhandledAttributes().  Subclasses should not need to call this or
+     * pushContext(), instead using a scoped DOMableContext instance to take
+     * care of it.
+     */
+    void popContext(const xercesc::DOMElement* node);
+
+    /**
+     * Append @p context to the current instantiation context for this
+     * DOMable, such as a particular node identifier.  The context is added to
+     * messages and exceptions.  This does nothing if there is not already a
+     * context on the stack.
+     */
+    void addContext(const std::string& context);
+
+    /**
+     * Register a list of attribute names that are handled by this DOMable.
+     */
+    void handledAttributes(const std::vector<std::string>& names);
+
+    /**
+     * Lookup an attribute with name @p name and return the value as a string
+     * in @p value.  If not found, @p value is not changed.  Return true if
+     * the attribute is found.  When an attribute is requested, it is
+     * automatically added to the handled list.
+     */
+    bool getAttribute(const xercesc::DOMElement* node,
+                      const std::string& name, std::string& value);
+
+    /**
+     * Return attribute string value @p value as a float.  Throw
+     * InvalidParameterException if the attribute value cannot be parsed as a
+     * float.  The exception string will include the attribute name, using
+     * @p name if given, otherwise the last attribute name retrieved with
+     * getAttribute().
+     */
+    float asFloat(const std::string& value, const std::string& name = "");
+
+    /**
+     * Return attribute string value @p value as a bool.  Throw
+     * InvalidParameterException if the attribute value cannot be parsed as a
+     * bool.  The exception string will include the attribute name, using
+     * @p name if given, otherwise the last attribute name retrieved with
+     * getAttribute().
+     */
+    bool asBool(const std::string& value, const std::string& name = "");
+
+    /**
+     * Return attribute string value @p value as an int.  Throw
+     * InvalidParameterException if the attribute value cannot be parsed as a
+     * int.  The format can be decimal, or else hex with 0x prefix or octal
+     * with 0 prefix.  The exception string will include the attribute name, using
+     * @p name if given, otherwise the last attribute name retrieved with
+     * getAttribute().
+     */
+    int asInt(const std::string& value, const std::string& name = "");
+
+    handled_attributes_t getHandledAttributes()
+    {
+        return _handled_attributes;
     }
 
-private:
-    static XMLCh* namespaceURI;
+    /**
+     * Check all the handled attributes against the attributes in the given
+     * @p node, and raise an InvalidParameterException if there is an
+     * attribute which was not handled.
+     */
+    void checkUnhandledAttributes(const xercesc::DOMElement* node);
 
+    std::string& context();
+
+private:
+
+    const std::string& get_name(const std::string& iname);
+
+    friend class DOMableContext;
+
+    // Subclasses of DOMable can register the attributes they handle, so that
+    // base class implementations can detect unhandled attributes.
+    handled_attributes_t _handled_attributes{};
+
+    std::vector<std::string> _contexts{};
 };
+
 
 }}	// namespace nidas namespace core
 
