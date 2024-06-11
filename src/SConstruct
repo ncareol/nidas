@@ -181,6 +181,7 @@ def nidas_build(env: Environment):
     # env['CXX'] = 'clang++'
     env.AppendUnique(CFLAGS=['-Wall'])
     env.AppendUnique(CCFLAGS=['-g', '-O2'])
+    # env.Append(CCFLAGS=['-O0'])
     env.AppendUnique(CXXFLAGS=['-Wall', '-Wextra'])
     env.AppendUnique(CCFLAGS=['-Wformat', '-Werror=format-security'])
 
@@ -190,7 +191,8 @@ def nidas_build(env: Environment):
 
     # Take advantage of buffer overflow detection wherever available.
     # https://www.redhat.com/en/blog/enhance-application-security-fortifysource
-    env.AppendUnique(CCFLAGS=['-D_FORTIFY_SOURCE=2'])
+    if '-O0' not in env.get('CCFLAGS'):
+        env.AppendUnique(CCFLAGS=['-D_FORTIFY_SOURCE=2'])
 
     # The goal is to keep builds free of warnings by reporting warnings as
     # errors.  However, it is difficult to use separate compiler flags for
