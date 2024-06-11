@@ -47,6 +47,8 @@ else
 fi
 echo "TEST=$TEST"
 
+logs="--log info"
+$debugging && logs="--log debug"
 
 start_dsm() # config
 {
@@ -58,7 +60,7 @@ start_dsm() # config
     # start dsm data collection
     rm -f $TEST/dsm.pid
     (set -x
-     $valgrind dsm -d --pid $TEST/dsm.pid -l 6 $config 2>&1 | \
+     $valgrind dsm -d --pid $TEST/dsm.pid $logs $config 2>&1 | \
      tee $TEST/dsm.log ) &
     dsmpid=$!
 }
@@ -91,7 +93,7 @@ start_dsm_server()
     export NIDAS_CONFIGS=config/configs.xml
     # valgrind --tool=helgrind dsm_server -d -l 6 -r -c > $TEST/dsm_server.log 2>&1 &
     # --gen-suppressions=all
-    (set -x; exec $valgrind dsm_server -d -l 6 $xmlrpcopt -c > $TEST/dsm_server.log 2>&1) &
+    (set -x; exec $valgrind dsm_server -d $logs $xmlrpcopt -c > $TEST/dsm_server.log 2>&1) &
 
     # seems like this should be synchronized on something, but I'm not sure
     # what.
@@ -428,7 +430,7 @@ test_serial_dsm_server()
     # not deterministic of course, since we have no way of synchronizing with
     # the actual reads and writes of the samples, but the final tests depend
     # on every sample getting through.
-    sleep 5
+    sleep 10
     kill_dsm_server
     check_output $HOSTNAME
     check_output server
@@ -437,8 +439,8 @@ test_serial_dsm_server()
 
 
 if [ -z "$testnames" ]; then
-    echo "Available test names: $alltests"
-    exit 1
+    testnames=test_serial_dsm_server
+    echo "Running default test: $testnames"
 fi
 
 for test in $testnames ; do

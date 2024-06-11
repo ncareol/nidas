@@ -879,6 +879,11 @@ SensorSimApp::main()
         sim->run();
 
         port->drain();
+        if (_openpty)
+        {
+            cerr << "sleeping for 5 seconds before closing pty..." << endl;
+            sleep(5);
+        }
         port->close();
     }
     catch (n_u::Exception& ex)
