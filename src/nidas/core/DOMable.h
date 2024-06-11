@@ -132,7 +132,7 @@ protected:
     /**
      * Log information about this node.
      */
-    void logNode(const xercesc::DOMElement* node);
+    std::string toString(const xercesc::DOMElement* node);
 
     /**
      * Push a context onto the stack, logging the new context and information

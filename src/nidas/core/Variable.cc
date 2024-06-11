@@ -157,7 +157,6 @@ Variable::~Variable()
 
 void Variable::setSiteSuffix(const string& val)
 {
-    VLOG(("") << "setSiteSuffix(" << val << ")");
     // don't repeat site suffix, in case
     // user has only set full name with setName().
     if (_siteSuffix.length() == 0 && _suffix.length() == 0) {

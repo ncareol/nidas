@@ -32,6 +32,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <exception>
 
 using nidas::util::InvalidParameterException;
 using std::string;
@@ -84,16 +85,14 @@ DOMable::toDOMElement(xercesc::DOMElement*, bool) const
 }
 
 
-void DOMable::logNode(const xercesc::DOMElement* node)
+std::string
+DOMable::toString(const xercesc::DOMElement* node)
 {
-    static nidas::util::LogContext lp(LOG_VERBOSE);
-    if (node && lp.active())
+    std::ostringstream out;
+    if (node && node->hasAttributes())
     {
         XDOMElement xnode(node);
-        if (!node->hasAttributes())
-            return;
-        std::ostringstream out;
-        out << "DOMable element node " << xnode.getNodeName() << ": ";
+        out << "element " << xnode.getNodeName() << ": ";
         xercesc::DOMNamedNodeMap *pAttributes = node->getAttributes();
         int nSize = pAttributes->getLength();
         for (int i = 0; i < nSize; ++i) {
@@ -101,8 +100,8 @@ void DOMable::logNode(const xercesc::DOMElement* node)
             const string& aname = attr.getName();
             out << aname << "=" << attr.getValue() << "; ";
         }
-        lp.log() << out.str();
     }
+    return out.str();
 }
 
 
@@ -110,8 +109,7 @@ void DOMable::pushContext(const std::string& context,
                           const xercesc::DOMElement* node)
 {
     _contexts.push_back(context);
-    VLOG(("entering context: ") << context);
-    logNode(node);
+    VLOG(("entering context: ") << context << "; " << toString(node));
 }
 
 
@@ -179,6 +177,8 @@ bool DOMable::getAttribute(const xercesc::DOMElement* node,
     }
     if (found)
         value = aval;
+    VLOG(("") << "attribute " << name << " "
+              << (found ? "found" : "not found") << ", value=" << value);
     return found;
 }
 
@@ -291,7 +291,10 @@ DOMableContext::DOMableContext(DOMable* domable, const std::string& context,
 
 DOMableContext::~DOMableContext() noexcept(false)
 {
-    _domable->popContext(_node);
+    // don't bother with popping contexts and running unhandled checks if an
+    // exception is propagating, so the original exception gets passed along.
+    if (!std::uncaught_exception())
+        _domable->popContext(_node);
 }
 
 

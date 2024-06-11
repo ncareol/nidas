@@ -682,6 +682,7 @@ void DSMSensor::fromDOMElement(const xercesc::DOMElement* node)
             idref);
         // read catalog entry
         setCatalogName(idref);
+        VLOG(("") << "calling fromDOMElement() on IDREF=" << idref);
         fromDOMElement(cnode);
     }
 
