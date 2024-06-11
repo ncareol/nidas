@@ -263,17 +263,13 @@ void Site::validate()
     // Check that variables are unique. Loop over dsms and
     // sensors so that you can report the dsm and sensor name
     // of duplicate variable.
-    set<Variable> varset;
-    set<Variable> dupvarset;
-    pair<set<Variable>::const_iterator,bool> ins;
-    set<Variable>::const_iterator it;
+    vector<Variable> varset;
+    vector<Variable> dupvarset;
 
     // keep a set of DSM ids to make sure they are unique
     set<int> dsm_ids;
     // likewise with dsm names
     set<string> dsm_names;
-
-    //pair<set<string>::iterator,bool> insert;
 
     const std::list<DSMConfig*>& dsms = getDSMConfigs();
     std::list<DSMConfig*>::const_iterator di = dsms.begin();
@@ -302,7 +298,7 @@ void Site::validate()
 		vi.hasNext(); ) {
 		const Variable* var = vi.next();
 		if (sensor->getDuplicateIdOK()) {
-		    set<Variable>::const_iterator vi = varset.find(*var);
+		    auto vi = std::find(varset.begin(), varset.end(), *var);
 		    if (vi != varset.end()) {
 			ostringstream ost;
 			ost << var->getName() << " from sensor=" <<
@@ -312,20 +308,21 @@ void Site::validate()
 			throw n_u::InvalidParameterException("variable",
 			    ost.str(),"is not unique");
 		    }
-		    dupvarset.insert(*var);
+		    dupvarset.push_back(*var);
 		}
 		else {
-		    ins = varset.insert(*var);
-		    it = dupvarset.find(*var);
-		    if (!ins.second || it != dupvarset.end()) {
+		    auto found = std::find(varset.begin(), varset.end(), *var);
+		    auto it = std::find(dupvarset.begin(), dupvarset.end(), *var);
+		    if (found != varset.end() || it != dupvarset.end()) {
 			ostringstream ost;
-			ost << var->getName() << " from sensor=" <<
+                ost << var->getName() << " from sensor=" <<
 			    sensor->getName() << '(' <<
 			    sensor->getDSMId() << ',' <<
 			    sensor->getSensorId() << ')';
 			throw n_u::InvalidParameterException("variable",
 			    ost.str(),"is not unique");
 		    }
+                    varset.push_back(*var);
 		}
 	    }
         }
