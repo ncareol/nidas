@@ -14,7 +14,7 @@ tmpout2=$(mktemp /tmp/sonic_test_XXXXXX)
 awkcom=$(mktemp /tmp/sonic_test_XXXXXX)
 trap "{ rm $f $tmpout $tmperr $tmpout1 $tmpout2 $awkcom; }" EXIT
 
-cat << \EOD > $awkcom
+cat << "EOD" > $awkcom
 # BEGIN { CONVFMT="%.4g" }
 /^2.*/{ 
     for (i = 1; i < 6 && i < NF; i++) {
@@ -26,7 +26,7 @@ cat << \EOD > $awkcom
     }
     printf("\n")
 }
-\EOD
+EOD
 
 error_exit() {
     cat $tmperr 1>&2
