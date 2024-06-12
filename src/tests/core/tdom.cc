@@ -151,6 +151,13 @@ BOOST_AUTO_TEST_CASE(test_cross_sites)
     DSMSensor* sonic1 = project.findSensor(sid);
     DSMSensor* sonic2 = project.findSensor(sid-200);
 
+    // make sure SITE token is t1 on sonic1 and t2 on sonic2
+    std::string site_token;
+    BOOST_TEST(sonic1->getTokenValue("SITE", site_token));
+    BOOST_TEST(site_token == "t1");
+    BOOST_TEST(sonic2->getTokenValue("SITE", site_token));
+    BOOST_TEST(site_token == "t2");
+
     // setting same site on both should trigger exception on validate()    
     try
     {

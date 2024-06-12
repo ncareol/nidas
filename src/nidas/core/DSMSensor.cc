@@ -530,6 +530,16 @@ bool DSMSensor::MyDictionary::getTokenValue(const string& token,string& value) c
         value = val;
         return true;
     }
+
+    // Need to override just the SITE token, without calling getTokenValue()
+    // on the Site, because the Site will pass the token on to the Project
+    // instead of first going through the DSMConfig.
+    const Site* site = _sensor->getSite();
+    if (site && (token == "AIRCRAFT" || token == "SITE")) {
+        value = site->getName();
+        return true;
+    }
+
     if (_sensor->getDSMConfig())
         return _sensor->getDSMConfig()->getTokenValue(token,value);
     return false;
