@@ -318,7 +318,14 @@ public:
     accumulateData(const Sample* samp);
 
     // Compute the rate for the current time range of the samples and the
-    // number of samples.  Return nan if fewer than 2 samples.
+    // number of samples.  Return nan if fewer than 2 samples.  Note that
+    // returning a rate of 0 for no samples is problematic, because 0 samples
+    // over a shorter time period is different than 0 samples over a longer
+    // one.  A sensor with rate 0.5 Hz is close to 0, but that does not mean
+    // there isn't a rate mismatch.  Perhaps comparing expected samples to
+    // received would be more correct... At the moment it's up to the user to
+    // collect samples over a long enough period for the rate to be
+    // meaningful, according to the expected rates of the sensors.
     double
     computeRate()
     {
@@ -837,16 +844,18 @@ jsonStats(std::vector<Problem>& problems)
     double rate = computeRate();
     stats["averagerate"] = number_or_null(rate);
 
-    // in theory a nan rate could be reported as a problem, but for now, rely
-    // on reporting it as a no-samples problem.
-    if (!std::isnan(rate) && header.isMember("rate"))
+    // A sensor with no samples is not reporting at the expected rate, so
+    // report that as a problem also.  This makes it easier to track sonics
+    // which flip back and forth between no data and mismatched rates as a
+    // contiguous sample-rate-mismatch problem.
+    if (header.isMember("rate"))
     {
         double xrate = header["rate"].asDouble();
         // probably this threshold should be a parameter eventually
-        if (xrate != 0 && (abs(xrate - rate) > 0.5))
+        if (xrate != 0 && (std::isnan(rate) || abs(xrate - rate) > 0.5))
         {
             Problem problem{Problem::SAMPLE_RATE_MISMATCH, streamid};
-            problem.values["averagerate"] = Json::Value(rate);
+            problem.values["averagerate"] = number_or_null(rate);
             problem.values["expectedrate"] = Json::Value(xrate);
             problems.push_back(std::move(problem));
         }
