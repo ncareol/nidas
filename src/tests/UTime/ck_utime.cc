@@ -275,4 +275,34 @@ BOOST_AUTO_TEST_CASE(test_utime)
         UTime ut = UTime::parse(true, cit->first);
         BOOST_TEST(ut == cit->second);
     }
+
+    {
+        UTime ut = UTime::parse(true, "2019-11-07T16:10:55.001");
+        UTime rounded{UTime::ZERO};
+        rounded = ut.earlier(USECS_PER_SEC);
+        BOOST_TEST(rounded == UTime::parse(true, "2019-11-07T16:10:55"));
+        rounded = ut.earlier(5*USECS_PER_SEC);
+        BOOST_TEST(rounded == UTime::parse(true, "2019-11-07T16:10:55"));
+        rounded = ut.earlier(10*USECS_PER_SEC);
+        BOOST_TEST(rounded == UTime::parse(true, "2019-11-07T16:10:50"));
+        rounded = ut.round(5*USECS_PER_SEC);
+        BOOST_TEST(rounded == UTime::parse(true, "2019-11-07T16:10:55"));
+        rounded = ut.round(10*USECS_PER_SEC);
+        BOOST_TEST(rounded == UTime::parse(true, "2019-11-07T16:11:00"));
+
+        ut = UTime::parse(true, "2019-11-07T16:10:59.567");
+        rounded = ut.round(USECS_PER_SEC);
+        BOOST_TEST(rounded == UTime::parse(true, "2019-11-07T16:11:00"));
+        rounded = ut.round(5*USECS_PER_SEC);
+        BOOST_TEST(rounded == UTime::parse(true, "2019-11-07T16:11:00"));
+        rounded = ut.round(10*USECS_PER_SEC);
+        BOOST_TEST(rounded == UTime::parse(true, "2019-11-07T16:11:00"));
+        rounded = ut.round(5*60*USECS_PER_SEC);
+        BOOST_TEST(rounded == UTime::parse(true, "2019-11-07T16:10:00"));
+
+        // check the trivial case
+        BOOST_TEST(ut.round(0) == ut);
+        BOOST_TEST(ut.earlier(0) == ut);
+    }
+
 }

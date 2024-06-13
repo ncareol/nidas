@@ -633,9 +633,23 @@ int UTime::month(string monstr)
 
 UTime UTime::earlier(long long y) const
 {
+    if (y == 0)
+        return *this;
     long long ymod = _utime % y;
     if (ymod >= 0) return UTime(_utime - ymod);
     return UTime(_utime - (y + ymod));
+}
+
+UTime UTime::round(long long y) const
+{
+    if (y == 0)
+        return *this;
+    long long ymod = _utime % y;
+    if (ymod < 0)
+        ymod += y;
+    if (ymod >= y / 2)
+        ymod = ymod - y;
+    return UTime(_utime - ymod);
 }
 
 /* static */

@@ -340,7 +340,21 @@ public:
 
     bool operator!=(const UTime& u) const { return _utime != u._utime; }
 
+    /**
+     * Return the UTime on the even microseconds interval @p y at or just
+     * prior to this UTime.  If @p y is zero, return this UTime.
+     * 
+     * @param y 
+     * @return UTime 
+     */
     UTime earlier(long long y) const;
+
+    /**
+     * Like earlier(), but if this UTime is closer to one interval past
+     * earlier(), then return that UTime instead of the earlier one.  If @p y
+     * is zero, return this UTime.
+     */
+    UTime round(long long y) const;
 
     static int month(std::string monstr);
 

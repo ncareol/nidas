@@ -1047,6 +1047,7 @@ private:
     BadSampleFilterArg FilterArg;
     NidasAppArg JsonOutput;
     NidasAppArg ShowProblems;
+    NidasAppArg RoundStart;
 
 #if NIDAS_JSONCPP_ENABLED
 #if !NIDAS_JSONCPP_STREAMWRITER
@@ -1169,6 +1170,11 @@ will be interpolated with each stats period start time.)"
 R"(Print errors (aka problems) detected in processed data, such as
 missing values and mismatched sample rates.  JSON reports always
 include problems.)"),
+    RoundStart("--round", "SECONDS",
+R"(Round the start time of each period to the nearest interval of
+length SECONDS.  The period start time is only ever shown in log
+messages and the json output, since the sample statistics always
+show the actual sample times.)"),
 #if NIDAS_JSONCPP_ENABLED
     streamWriter(),
     headerWriter()
@@ -1183,7 +1189,7 @@ include problems.)"),
                         app.Version | app.InputFiles | FilterArg |
                         app.Help | Period | Update | Count |
                         AllSamples | ShowData | SingleMote | Fullnames |
-                        ShowProblems);
+                        ShowProblems | RoundStart);
 #if NIDAS_JSONCPP_ENABLED
     app.enableArguments(JsonOutput);
 #endif
@@ -1212,6 +1218,13 @@ int DataStats::parseRunstring(int argc, char** argv)
         _reportall = AllSamples.asBool();
         _reportdata = ShowData.asBool();
         _fullnames = Fullnames.asBool();
+        if (RoundStart.specified())
+        {
+            int seconds = RoundStart.asInt();
+            if (seconds < 0 || seconds > _period)
+                throw std::invalid_argument("rounding seconds must be "
+                    "less than period and not negative");
+        }
 
         if (_period < 0 || _update < 0)
         {
@@ -1883,6 +1896,11 @@ jsonReport()
 void DataStats::setStart(const UTime& start)
 {
     _period_start = start;
+    if (RoundStart.specified())
+    {
+        int seconds = RoundStart.asInt();
+        _period_start = start.round(seconds*USECS_PER_SEC);
+    }
     _period_end = _period_start + _period * USECS_PER_SEC;
     if (_update < _period)
     {
