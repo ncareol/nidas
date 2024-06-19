@@ -73,14 +73,6 @@ void replaceCharsIn(std::string& in,const std::string& pat, const std::string& r
 std::string replaceChars(const std::string& in,const std::string& pat, const std::string& rep);
 
 /**
- * Run "svn status -v --depth empty" on a path and return a concatentated
- * string of revision + flags, where flags are the first 8 characters.
- *
- * @throws IOException
- */
-std::string svnStatus(const std::string& path);
-
-/**
  * Calculate wind direction in degrees from U and V wind components,
  * or if U and V are both zero return NAN as wind direction is undefined.
  */

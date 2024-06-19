@@ -169,55 +169,6 @@ std::string replaceChars(const std::string& in,const std::string& pat, const std
     return res;
 }
 
-std::string svnStatus(const std::string& path)
-{
-
-    const string& cmd = "svn";
-
-    vector<string> args;
-
-    args.push_back(cmd);
-    args.push_back("status");
-    args.push_back("-v");
-    // "--depth empty" means list status of only path itself.
-    args.push_back("--depth");
-    args.push_back("empty");
-    args.push_back(path);
-
-    Process proc = Process::spawn(cmd,args);
-
-    istream& outst = proc.outStream();
-    string strout;
-
-    // first 8 characters: http://svnbook.red-bean.com/en/1.7/svn.ref.svn.c.status.html
-    char flags[9];
-    outst.read(flags,sizeof(flags)-1);
-    flags[outst.gcount()] = 0;
-
-    if (!outst.eof() && flags[0] != '?') {
-        string rev;
-        outst >> rev;
-        if (!outst.fail()) 
-            strout = rev + flags;
-        trimString(strout);
-    }
-
-    istream& errst = proc.errStream();
-    string strerr;
-    for (; strerr.length() < 1024 && !errst.eof(); ) {
-        char cbuf[32];
-        errst.read(cbuf,sizeof(cbuf)-1);
-        cbuf[errst.gcount()] = 0;
-        strerr += cbuf;
-    }
-
-    int status;
-    proc.wait(true,&status);
-    if (!WIFEXITED(status) || WEXITSTATUS(status)) {
-        throw IOException("svn status -v --depth empty",strerr);
-    }
-    return strout;
-}
 
 float dirFromUV(float u, float v){
     float dir = nanf("");
