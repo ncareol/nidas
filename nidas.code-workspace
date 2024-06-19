@@ -87,6 +87,8 @@
 			"${workspaceRoot}/src/build_x86_64_fedora37/include"
 		],
 		"files.exclude": {
+			"debian/nidas-dev": true,
+			"debian/tmp": true,
 			"src/build*": true
 		}
 	}

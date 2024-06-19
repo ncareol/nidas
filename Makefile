@@ -62,6 +62,7 @@ build:
 	$(SCONS) -C src $(GCJFLAGS) -j 4 BUILD=$(BUILD) \
 		REPO_TAG=$(REPO_TAG) \
 		PREFIX=$(PREFIX) \
+		allow_warnings=on \
 		LINUX_MODULES=$(LINUX_MODULES)
 
 install:

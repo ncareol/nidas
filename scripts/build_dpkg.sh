@@ -152,7 +152,7 @@ if [ -n "$repo" -a -d "$repo" ]; then
     fi
 fi
 
-args="$args -a$arch -i -I -Ibuild* -Idoc/doxygen"
+args="$args -a$arch -i -I -Ibuild* -Idoc/doxygen -Iidir"
 
 if $use_chroot; then
     dist=$(lsb_release -c | awk '{print $2}')
