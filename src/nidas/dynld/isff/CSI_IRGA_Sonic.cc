@@ -339,10 +339,8 @@ bool CSI_IRGA_Sonic::process(const Sample* samp,
         despike(wsamptime, uvwtd,4,spikes);
     }
 
-#ifdef HAVE_LIBGSL
     // apply shadow correction before correcting for unusual orientation
     transducerShadowCorrection(wsamptime, uvwtd);
-#endif
 
     applyOrientation(wsamptime, uvwtd);
 

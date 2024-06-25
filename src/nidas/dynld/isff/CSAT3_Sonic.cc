@@ -718,10 +718,8 @@ bool CSAT3_Sonic::process(const Sample* samp,
             }
         }
 
-#ifdef HAVE_LIBGSL
         // apply shadow correction before correcting for unusual orientation
-        transducerShadowCorrection(wsamp->getTimeTag(),dout);
-#endif
+        transducerShadowCorrection(wsamp->getTimeTag(), dout);
 
         applyOrientation(wsamp->getTimeTag(), dout);
 
@@ -811,11 +809,9 @@ void CSAT3_Sonic::parseParameters()
         }
     }
 
-#ifdef HAVE_LIBGSL
     if (_shadowFactor != 0.0 && !_atCalFile) 
             throw n_u::InvalidParameterException(getName(),
                 "shadowFactor","transducer shadowFactor is non-zero, but no abc2uvw cal file is specified");
-#endif
 }
 
 void CSAT3_Sonic::checkSampleTags()
