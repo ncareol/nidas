@@ -47,9 +47,9 @@ SampleTag::SampleTag(const DSMSensor* sensor):
     _station(-1),
     _rate(0.0),_processed(true),
     _dsm(0),_sensor(sensor),
-    _constVariables(),_variables(),_variableNames(),
+    _variables(),_variableNames(),
     _scanfFormat(),_promptString(), _promptOffset(0.0),
-    _parameters(), _constParameters(),_enabled(true),
+    _parameters(), _enabled(true),
      _ttAdjustVal(-1.0)
 {
     if (_sensor)
@@ -71,27 +71,19 @@ SampleTag::SampleTag(const SampleTag& x):
     _rate(x._rate),_processed(x._processed),
     _dsm(x._dsm),
     _sensor(x._sensor),
-    _constVariables(),_variables(),_variableNames(),
+    _variables(),_variableNames(),
     _scanfFormat(x._scanfFormat),
     _promptString(x._promptString),
     _promptOffset(x._promptOffset),
-    _parameters(), _constParameters(),_enabled(x._enabled),
+    _parameters(), _enabled(x._enabled),
     _ttAdjustVal(x._ttAdjustVal)
 {
-    const vector<const Variable*>& vars = x.getVariables();
-    vector<const Variable*>::const_iterator vi;
-    for (vi = vars.begin(); vi != vars.end(); ++vi) {
-        const Variable* var = *vi;
-	Variable* newv = new Variable(*var);
-	addVariable(newv);
+    for (auto var: x.getVariables()) {
+        addVariable(new Variable(*var));
     }
 
-    const list<const Parameter*>& params = x.getParameters();
-    list<const Parameter*>::const_iterator pi;
-    for (pi = params.begin(); pi != params.end(); ++pi) {
-        const Parameter* parm = *pi;
-	Parameter* newp = parm->clone();
-	addParameter(newp);
+    for (auto parm: x.getParameters()) {
+        addParameter(parm->clone());
     }
 }
 
@@ -145,7 +137,6 @@ SampleTag::~SampleTag()
 void SampleTag::addVariable(Variable* var)
 {
     _variables.push_back(var);
-    _constVariables.push_back(var);
     var->setSampleTag(this);
 }
 
@@ -189,21 +180,12 @@ const Site* SampleTag::getSite() const
 void SampleTag::removeVariable(const Variable* var)
        //throw(n_u::InvalidParameterException)
 {
-    Variable *deleteableVar = 0;
     for (unsigned int i = 0; i < _variables.size(); i++)
         if (_variables[i]->getName() == var->getName() &&
             _variables[i] == var) {
-            deleteableVar = _variables[i];
+            delete _variables[i];
             _variables.erase(_variables.begin() + i);
         }
-
-    for (unsigned int i = 0; i < _constVariables.size(); i++)
-        if (_constVariables[i]->getName() == var->getName() &&
-            _constVariables[i] == var) 
-            _constVariables.erase(_constVariables.begin() + i);
-
-    if (deleteableVar) 
-        delete deleteableVar;
 }
 
 void SampleTag::setSuffix(const std::string& val)
@@ -214,9 +196,17 @@ void SampleTag::setSuffix(const std::string& val)
     }
 }
 
-const std::vector<const Variable*>& SampleTag::getVariables() const
+std::vector<const Variable*> SampleTag::getVariables() const
 {
-    return _constVariables;
+    // It would be convenient to return a reference here, by casting the
+    // internal vector of Variable pointers to a vector of const pointers,
+    // since a vector of pointers is a vector of pointers and all we want to
+    // change is the const qualification.  However, the compiler flags that
+    // cast as unsafe type punning and a violation of strict aliasing, even
+    // using reinterpret_cast<>.  So returning a copy of the vector is the
+    // more conventional way to do it, since then there is no way for a caller
+    // to modify the internal vector.
+    return {_variables.begin(), _variables.end()};
 }
 
 VariableIterator SampleTag::getVariableIterator() const
@@ -227,10 +217,10 @@ VariableIterator SampleTag::getVariableIterator() const
 unsigned int SampleTag::getDataIndex(const Variable* var) const
 {
     unsigned int i = 0;
-    std::vector<const Variable*>::const_iterator vi = _constVariables.begin();
-    for ( ; vi != _constVariables.end(); ++vi) {
-        if (*vi == var) return i;
-        i += (*vi)->getLength();
+    for (auto v : _variables) {
+        if (v == var)
+            return i;
+        i += v->getLength();
     }
     return UINT_MAX;
 }
@@ -238,29 +228,29 @@ unsigned int SampleTag::getDataIndex(const Variable* var) const
 void SampleTag::addParameter(Parameter* val)
 {
     list<Parameter*>::iterator pi;
-    list<const Parameter*>::iterator pi2 = _constParameters.begin();
     for (pi = _parameters.begin(); pi != _parameters.end(); ) {
         Parameter* param = *pi;
     	if (param->getName() == val->getName()) {
             pi = _parameters.erase(pi);
-            pi2 = _constParameters.erase(pi2);
             delete param;
         }
         else {
             ++pi;
-            ++pi2;
         }
     }
     _parameters.push_back(val);
-    _constParameters.push_back(val);
+}
+
+std::list<const Parameter*> SampleTag::getParameters() const
+{
+    return {_parameters.begin(), _parameters.end()};
 }
 
 const Parameter* SampleTag::getParameter(const string& name) const
 {
-    list<const Parameter*>::const_iterator pi;
-    for (pi = _constParameters.begin(); pi != _constParameters.end(); ++pi) {
-        const Parameter* param = *pi;
-    	if (param->getName() == name) return param;
+    for (auto param: _parameters) {
+        if (param->getName() == name)
+            return param;
     }
     return 0;
 }

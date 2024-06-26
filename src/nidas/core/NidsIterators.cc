@@ -218,10 +218,10 @@ bool SensorIterator::hasNext()
 {
     if (_sensors && _sensorItr != _sensors->end()) return true;
     for (; _dsmIterator.hasNext(); ) {
-	const DSMConfig* dsm = _dsmIterator.next();
-	_sensors = &dsm->getSensors();
-	_sensorItr = _sensors->begin();
-	if (_sensorItr != _sensors->end()) return true;
+        const DSMConfig* dsm = _dsmIterator.next();
+        _sensors = &dsm->getSensors();
+        _sensorItr = _sensors->begin();
+        if (_sensorItr != _sensors->end()) return true;
     }
     return false;
 }
@@ -229,103 +229,85 @@ bool SensorIterator::hasNext()
 
 SampleTagIterator::SampleTagIterator(const Project* obj):
     _sensorIterator(obj->getSensorIterator()),
-    _processorIterator(obj->getProcessorIterator()),
-    _stags(), _sampleTagItr(_stags.end())
+    _processorIterator(obj->getProcessorIterator())
 {}
 
 SampleTagIterator::SampleTagIterator(const Site* obj):
     _sensorIterator(obj->getSensorIterator()),
-    _processorIterator(obj->getProcessorIterator()),
-    _stags(),_sampleTagItr(_stags.end())
+    _processorIterator(obj->getProcessorIterator())
 {}
 
 SampleTagIterator::SampleTagIterator(const DSMConfig* obj):
     _sensorIterator(obj->getSensorIterator()),
-    _processorIterator(),
-    _stags(),_sampleTagItr(_stags.end())
+    _processorIterator()
 {}
 
 SampleTagIterator::SampleTagIterator(const DSMServer* obj):
     _sensorIterator(),
-    _processorIterator(obj->getProcessorIterator()),
-    _stags(),_sampleTagItr(_stags.end())
+    _processorIterator(obj->getProcessorIterator())
 {}
 
 SampleTagIterator::SampleTagIterator(const SampleSource* obj):
     _sensorIterator(),
     _processorIterator(),
-    _stags(obj->getSampleTags()),
-    _sampleTagItr(_stags.begin())
+    _stags(obj->getSampleTags())
 {}
 
 SampleTagIterator::SampleTagIterator():
     _sensorIterator(),
-    _processorIterator(),
-    _stags(),_sampleTagItr(_stags.end())
+    _processorIterator()
 {}
 
 bool SampleTagIterator::hasNext()
 {
-    if (_sampleTagItr != _stags.end()) return true;
-    for (; _sensorIterator.hasNext(); ) {
-	const DSMSensor* sensor = _sensorIterator.next();
-	_stags = sensor->getSampleTags();
-	_sampleTagItr = _stags.begin();
-	if (_sampleTagItr != _stags.end()) return true;
+    while (_i == _stags.size())
+    {
+        if (_sensorIterator.hasNext()) {
+            const DSMSensor* sensor = _sensorIterator.next();
+            _stags = sensor->getSampleTags();
+        }
+        else if (_processorIterator.hasNext()) {
+            SampleIOProcessor* proc = _processorIterator.next();
+            // these are the requested sample tags, not the processed samples tags
+            _stags = proc->getRequestedSampleTags();
+        }
+        else {
+            break;
+        }
+        _i = 0;
     }
-    for (; _processorIterator.hasNext(); ) {
-	SampleIOProcessor* proc = _processorIterator.next();
-        // these are the requested sample tags, not the processed samples tags
-	_stags = proc->getRequestedSampleTags();
-        // these are the sample tags, not the requested sample tags
-	// _stags = proc->getSampleTags();
-	_sampleTagItr = _stags.begin();
-	if (_sampleTagItr != _stags.end()) return true;
-    }
-    return false;
+    return _i < _stags.size();
 }
 
 
 VariableIterator::VariableIterator(const Project* obj):
-    _sampleTagIterator(obj->getSampleTagIterator()),
-    _variables(0), _variableItr()
-
+    _sampleTagIterator(obj->getSampleTagIterator())
 {}
 
 VariableIterator::VariableIterator(const Site* obj):
-    _sampleTagIterator(obj->getSampleTagIterator()),
-    _variables(0),_variableItr()
+    _sampleTagIterator(obj->getSampleTagIterator())
 {}
 
 VariableIterator::VariableIterator(const DSMConfig* obj):
-    _sampleTagIterator(obj->getSampleTagIterator()),
-    _variables(0),_variableItr()
+    _sampleTagIterator(obj->getSampleTagIterator())
 {}
 
 VariableIterator::VariableIterator(const SampleSource* obj):
-    _sampleTagIterator(obj->getSampleTagIterator()),
-    _variables(0),_variableItr()
+    _sampleTagIterator(obj->getSampleTagIterator())
 {}
 
 VariableIterator::VariableIterator(const SampleTag* stag):
     _sampleTagIterator(),
-    _variables(&stag->getVariables()),_variableItr(_variables->begin())
+    _variables(stag->getVariables())
 {}
 
 bool VariableIterator::hasNext()
 {
-    // after the assignment operator apparently:
-    //  _variables is non-null, _variableItr is valid and works
-    //      _sampleTagIterator is not OK.  Always returns hasNext(), and
-    //      points to a sample tag with a _variables vector of size 0
-    //
-    if (_variables && _variableItr != _variables->end()) return true;
-    for (; _sampleTagIterator.hasNext(); ) {
-	const SampleTag* stag = _sampleTagIterator.next();
-	_variables = &stag->getVariables();
-	_variableItr = _variables->begin();
-	if (_variableItr != _variables->end()) return true;
+    while (_i == _variables.size() && _sampleTagIterator.hasNext())
+    {
+        const SampleTag* stag = _sampleTagIterator.next();
+        _variables = stag->getVariables();
+        _i = 0;
     }
-    return false;
+    return _i < _variables.size();
 }
-

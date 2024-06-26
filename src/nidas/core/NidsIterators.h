@@ -29,6 +29,7 @@
 #include <list>
 // #include <set>
 #include <vector>
+#include <iterator>
 
 namespace nidas { namespace core {
 
@@ -218,38 +219,6 @@ class SampleTagIterator
 {
 public:
 
-    /**
-     * Copy constructor.
-     */
-    SampleTagIterator(const SampleTagIterator&x):
-        _sensorIterator(x._sensorIterator),
-        _processorIterator(x._processorIterator),
-        _stags(x._stags),_sampleTagItr(_stags.begin())
-    {
-        /* Must define a copy constructor since _stags
-         * is a list and not a pointer. The default copy
-         * constructor is OK for all the other iterators, since they
-         * contain a pointer to a container which is part of
-         * Project::getInstance(), and so remains valid
-         * (hopefully) over the life of the iterator.
-         * In this class _stags is a new list, so we must reset
-         * _sampleTagItr to point to the beginning of the new list.
-         */
-    }
-
-    SampleTagIterator& operator=(const SampleTagIterator&x)
-    {
-        /* Must define an assignment operator for the same reason
-         * mentioned above in the copy constructor.
-         */
-        if (this != &x) {
-            _sensorIterator = x._sensorIterator;
-            _stags = x._stags;
-            _sampleTagItr = _stags.begin();
-        }
-        return *this;
-    }
-        
     SampleTagIterator(const Project*);
 
     SampleTagIterator(const DSMServer*);
@@ -266,7 +235,7 @@ public:
 
     bool hasNext();
 
-    const SampleTag* next() { return *_sampleTagItr++; }
+    const SampleTag* next() { return *std::next(_stags.begin(), _i++); }
 
 private:
 
@@ -274,9 +243,9 @@ private:
 
     ProcessorIterator _processorIterator;
 
-    std::list<const SampleTag*> _stags;
+    std::list<const SampleTag*> _stags{};
 
-    std::list<const SampleTag*>::const_iterator _sampleTagItr;
+    size_t _i{0};
 };
 
 /**
@@ -301,40 +270,17 @@ public:
 
     VariableIterator(const SampleTag*);
 
-    /**
-     * Excplicit copy constructor to satisfy -Weffc++.
-     */
-    VariableIterator(const VariableIterator& x):
-        _sampleTagIterator(x._sampleTagIterator),
-        _variables(x._variables),
-        _variableItr(x._variableItr)
-    {
-    }
-
-    /**
-     * Excplicit assignment operator to satisfy -Weffc++.
-     */
-    VariableIterator& operator=(const VariableIterator& rhs)
-    {
-        if (&rhs != this) {
-            _sampleTagIterator = rhs._sampleTagIterator;
-            _variables = rhs._variables;
-            _variableItr = rhs._variableItr;
-        }
-        return *this;
-    }
-
     bool hasNext();
 
-    const Variable* next() { return *_variableItr++; }
+    const Variable* next() { return _variables[_i++]; }
 
 private:
 
     SampleTagIterator _sampleTagIterator;
 
-    const std::vector<const Variable*>* _variables;
+    std::vector<const Variable*> _variables{};
 
-    std::vector<const Variable*>::const_iterator _variableItr;
+    size_t _i{0};
 };
 
 }}	// namespace nidas namespace core
