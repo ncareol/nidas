@@ -313,19 +313,12 @@ public:
      * will then own the pointer and will delete it
      * in its destructor.
      */
-    void addParameter(Parameter* val)
-    {
-        _parameters.push_back(val);
-        _constParameters.push_back(val);
-    }
+    void addParameter(Parameter* val);
 
     /**
      * Get full list of parameters.
      */
-    const std::list<const Parameter*>& getParameters() const
-    {
-        return _constParameters;
-    }
+    std::list<const Parameter*> getParameters() const;
 
     /**
      * Fetch a parameter by name. Returns a NULL pointer if
@@ -422,6 +415,13 @@ private:
      */
     void updateName();
 
+    /**
+     * Expand the string in @p aval against either the containing SampleTag or
+     * else the global Project instance.  Return a reference to the same
+     * string.
+     */
+    std::string& expand(std::string& aval);
+
     std::string _name;
 
     const Site* _site;
@@ -454,12 +454,6 @@ private:
      * List of pointers to Parameters.
      */
     std::list<Parameter*> _parameters;
-
-    /**
-     * List of const pointers to Parameters for providing via
-     * getParameters().
-     */
-    std::list<const Parameter*> _constParameters;
 
     float _missingValue;
 

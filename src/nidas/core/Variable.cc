@@ -52,7 +52,7 @@ Variable::Variable():
     _A2dChannel(-1),_units(),
     _type(CONTINUOUS),
     _length(1),
-    _converter(0),_parameters(),_constParameters(),
+    _converter(0),_parameters(),
     _missingValue(1.e37),
     _minValue(-numeric_limits<float>::max()),
     _maxValue(numeric_limits<float>::max()),
@@ -78,19 +78,16 @@ Variable::Variable(const Variable& x):
     _units(x._units),
     _type(x._type),
     _length(x._length),
-    _converter(0),_parameters(),_constParameters(),
+    _converter(0),_parameters(),
     _missingValue(x._missingValue),
     _minValue(x._minValue),
     _maxValue(x._maxValue),
     _dynamic(x._dynamic)
 {
-    if (x._converter) _converter = x._converter->clone();
-    const list<const Parameter*>& params = x.getParameters();
-    list<const Parameter*>::const_iterator pi;
-    for (pi = params.begin(); pi != params.end(); ++pi) {
-        const Parameter* parm = *pi;
-	Parameter* newp = parm->clone();
-	addParameter(newp);
+    if (x._converter)
+        _converter = x._converter->clone();
+    for (auto parm: x.getParameters()) {
+        addParameter(parm->clone());
     }
     _plotRange[0] = x._plotRange[0];
     _plotRange[1] = x._plotRange[1];
@@ -268,101 +265,86 @@ float Variable::getSampleRate() const {
     else return _sampleTag->getRate();
 }
 
+
+void Variable::addParameter(Parameter* val)
+{
+    _parameters.push_back(val);
+}
+
+/**
+ * Get full list of parameters.
+ */
+std::list<const Parameter*> Variable::getParameters() const
+{
+    return {_parameters.begin(), _parameters.end()};
+}
+
+
 const Parameter* Variable::getParameter(const std::string& name) const
 {
-    std::list<const Parameter*>::const_iterator pi;
-    for (pi = _constParameters.begin(); pi != _constParameters.end(); ++pi)
-      if ((*pi)->getName().compare(name) == 0)
-        return *pi;
+    for (auto param: _parameters)
+      if (param->getName() == name)
+        return param;
     return 0;
 }
 
+std::string& Variable::expand(std::string& aval)
+{
+    if (_sampleTag && _sampleTag->getDSMSensor())
+        aval = _sampleTag->getDSMSensor()->expandString(aval);
+    else
+        aval = Project::getInstance()->expandString(aval);
+    return aval;
+}
+
+
 void Variable::fromDOMElement(const xercesc::DOMElement* node)
 {
-    XDOMElement xnode(node);
-    if(node->hasAttributes()) {
-        // get all the attributes of the node
-        xercesc::DOMNamedNodeMap *pAttributes = node->getAttributes();
-        int nSize = pAttributes->getLength();
-        for(int i=0;i<nSize;++i) {
-            XDOMAttr attr((xercesc::DOMAttr*) pAttributes->item(i));
-            const string& aname = attr.getName();
-            string aval;
-            if (_sampleTag && _sampleTag->getDSMSensor())
-                aval = _sampleTag->getDSMSensor()->expandString(attr.getValue());
-            else
-                aval = Project::getInstance()->expandString(attr.getValue());
-            // get attribute name
-            if (aname == "name")
-                setPrefix(aval);
-            else if (aname == "longname")
-                setLongName(aval);
-            else if (aname == "units")
-                setUnits(aval);
-            else if (aname == "length") {
-                istringstream ist(aval);
-                unsigned int val;
-                ist >> val;
-                if (ist.fail())
-                    throw n_u::InvalidParameterException
-                        (string("variable ") + getName(),aname,aval);
-                setLength(val);
+    DOMableContext dc(this, "Variable: ", node);
+
+    string aval;
+    if (getAttribute(node, "name", aval)) {
+        setPrefix(expand(aval));
+        addContext(getPrefix());
+    }
+    if (getAttribute(node, "longname", aval))
+        setLongName(expand(aval));
+    if (getAttribute(node, "units", aval))
+        setUnits(expand(aval));
+    if (getAttribute(node, "length", aval))
+        setLength(asInt(expand(aval)));
+    if (getAttribute(node, "missingValue", aval))
+        setMissingValue(asFloat(expand(aval)));
+    if (getAttribute(node, "minValue", aval))
+        setMinValue(asFloat(expand(aval)));
+    if (getAttribute(node, "maxValue", aval))
+        setMaxValue(asFloat(expand(aval)));
+    if (getAttribute(node, "count", aval) && asBool(expand(aval)))
+        setType(Variable::COUNTER);
+    if (getAttribute(node, "dynamic", aval))
+        setDynamic(asBool(expand(aval)));
+    if (getAttribute(node, "plotrange", aval)) {
+        std::istringstream ist(expand(aval));
+        float prange[2] = { -10.0,10.0 };
+        // if plotrange value starts with '$' ignore error.
+        if (aval.length() < 1 || aval[0] != '$') {
+            int i;
+            for (i = 0; i < 2 ; i++) {
+                if (ist.eof()) break;
+                ist >> prange[i];
+                if (ist.fail()) break;
             }
-            else if (aname == "missingValue" ||
-                     aname == "minValue" ||
-                     aname == "maxValue") {
-                istringstream ist(aval);
-                float val;
-                ist >> val;
-                if (ist.fail())
-                    throw n_u::InvalidParameterException
-                        (string("variable") + getName(),aname,aval);
-                string sname = aname.substr(0,3);
-                if (sname == "mis") setMissingValue(val);
-                else if (sname == "min") setMinValue(val);
-                else if (sname == "max") setMaxValue(val);
-            }
-            else if (aname == "count") {
-                if (aval == "true")
-                    setType(Variable::COUNTER);
-            }
-            else if (aname == "plotrange") {
-                // environment variables are expanded above.
-                std::istringstream ist(aval);
-                float prange[2] = { -10.0,10.0 };
-                // if plotrange value starts with '$' ignore error.
-                if (aval.length() < 1 || aval[0] != '$') {
-                    int i;
-                    for (i = 0; i < 2 ; i++) {
-                        if (ist.eof()) break;
-                        ist >> prange[i];
-                        if (ist.fail()) break;
-                    }
-                    // Don't throw exception on poorly formatted plotranges
-                    if (i < 2)  {
-                        n_u::InvalidParameterException e(string("variable ") +
-                                                         getName(),aname,aval);
-                        WLOG(("%s",e.what()));
-                    }
-                }
-                setPlotRange(prange[0],prange[1]);
-            }
-            else if (aname == "dynamic") {
-                istringstream ist(aval);
-                bool val;
-                ist >> boolalpha >> val;
-                if (ist.fail()) {
-                    ist.clear();
-                    ist >> noboolalpha >> val;
-                    if (ist.fail())
-                        throw n_u::InvalidParameterException
-                            (string("variable ") + getName(),aname,aval);
-                }
-                setDynamic(val);
+            // Don't throw exception on poorly formatted plotranges
+            if (i < 2)  {
+                n_u::InvalidParameterException e(
+                    string("variable ") + getName(), "plotrange", aval);
+                WLOG(("%s",e.what()));
             }
         }
+        setPlotRange(prange[0],prange[1]);
     }
 
+    handledElements({"parameter", "linear", "poly", "converter"});
     int nconverters = 0;
     xercesc::DOMNode* child;
     for (child = node->getFirstChild(); child != 0;
@@ -397,9 +379,6 @@ void Variable::fromDOMElement(const xercesc::DOMElement* node)
             setConverter(cvtr);
             nconverters++;
         }
-        else throw n_u::InvalidParameterException
-                 (string("variable ") + getName(),
-                  "unsupported child element", elname);
     }
 }
 
