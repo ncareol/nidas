@@ -23,11 +23,6 @@
  **
  ********************************************************************
 */
-/*
-
-    A fairly generic parameter.
-
-*/
 
 #ifndef NIDAS_CORE_PARAMETER_H
 #define NIDAS_CORE_PARAMETER_H
@@ -36,13 +31,17 @@
 
 #include <string>
 #include <vector>
-#include <sstream>
-#include <iostream>
 
 namespace nidas { namespace core {
 
 class Dictionary;
 
+/**
+ * A fairly generic parameter.
+ *
+ * A Parameter has a name and a list of values of the same type, either
+ * strings, floats, integers, or booleans.
+ */
 class Parameter
 {
 public:
@@ -129,7 +128,7 @@ template <class T>
 class ParameterT : public Parameter {
 public:
 
-    ParameterT(): Parameter(getParamType(T())),_values() {}
+    ParameterT();
 
     ParameterT* clone() const;
 
@@ -138,31 +137,23 @@ public:
      */
     void assign(const Parameter& x);
 
-    int getLength() const { return _values.size(); }
+    int getLength() const;
 
-    const std::vector<T> getValues() const { return _values; }
+    const std::vector<T> getValues() const;
 
-    void setValues(const std::vector<T>& vals) { _values = vals; }
+    void setValues(const std::vector<T>& vals);
 
     /**
      * Set ith value.
      */
-    void setValue(unsigned int i, const T& val)
-    {
-        if (i+1 > _values.size())
-            _values.resize(i+1);
-        _values[i] = val;
-    }
+    void setValue(unsigned int i, const T& val);
 
     /**
      * For parameters of length one, set its value.
      */
-    void setValue(const T& val) {
-        _values.resize(1);
-        _values[0] = val;
-    }
+    void setValue(const T& val);
 
-    T getValue(int i) const { return _values[i]; }
+    T getValue(int i) const;
 
     /**
      * @throws nidas::util::InvalidParameterException
@@ -173,7 +164,7 @@ public:
      * @throws nidas::util::InvalidParameterException;
      **/
     void fromDOMElement(const xercesc::DOMElement*, const Dictionary* dict);
-                                                                                
+
 protected:
 
     /**
@@ -198,6 +189,6 @@ private:
     const Parameter* p;
 };
 
-}}	// namespace nidas namespace core
+}} // namespace nidas namespace core
 
 #endif
