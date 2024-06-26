@@ -262,26 +262,12 @@ void Wind3D::parseParameters()
     const Parameter* parameter =
         Project::getInstance()->getParameter("wind3d_horiz_rotation");
     if (parameter) {
-        if ((parameter->getType() != Parameter::BOOL_PARAM &&
-            parameter->getType() != Parameter::INT_PARAM &&
-            parameter->getType() != Parameter::FLOAT_PARAM) ||
-            parameter->getLength() != 1)
-            throw n_u::InvalidParameterException(getName(),parameter->getName(),
-                "should be a boolean or integer (FALSE=0,TRUE=1) of length 1");
-        bool val = (bool) parameter->getNumericValue(0);
-        setDoHorizontalRotation(val);
+        setDoHorizontalRotation(parameter->getBoolValue(getName()));
     }
 
     parameter = Project::getInstance()->getParameter("wind3d_tilt_correction");
     if (parameter) {
-        if ((parameter->getType() != Parameter::BOOL_PARAM &&
-            parameter->getType() != Parameter::INT_PARAM &&
-            parameter->getType() != Parameter::FLOAT_PARAM) ||
-            parameter->getLength() != 1)
-            throw n_u::InvalidParameterException(getName(),parameter->getName(),
-                "should be a boolean or integer (FALSE=0,TRUE=1) of length 1");
-        bool val = (bool) parameter->getNumericValue(0);
-        setDoTiltCorrection(val);
+        setDoTiltCorrection(parameter->getBoolValue(getName()));
     }
 
     const list<const Parameter*>& params = getParameters();
@@ -316,22 +302,10 @@ void Wind3D::parseParameters()
             setLeanAzimuthDegrees(parameter->getNumericValue(0));
         }
         else if (parameter->getName() == "wind3d_horiz_rotation") {
-            if ((parameter->getType() != Parameter::BOOL_PARAM &&
-                parameter->getType() != Parameter::INT_PARAM &&
-                parameter->getType() != Parameter::FLOAT_PARAM) ||
-                parameter->getLength() != 1)
-                throw n_u::InvalidParameterException(getName(),parameter->getName(),
-                    "should be a boolean or integer (FALSE=0,TRUE=1) of length 1");
-            setDoHorizontalRotation((bool)parameter->getNumericValue(0));
+            setDoHorizontalRotation(parameter->getBoolValue(getName()));
         }
         else if (parameter->getName() == "wind3d_tilt_correction") {
-            if ((parameter->getType() != Parameter::BOOL_PARAM &&
-                parameter->getType() != Parameter::INT_PARAM &&
-                parameter->getType() != Parameter::FLOAT_PARAM) ||
-                parameter->getLength() != 1)
-                throw n_u::InvalidParameterException(getName(),parameter->getName(),
-                    "should be a boolean or integer (FALSE=0,TRUE=1) of length 1");
-            setDoTiltCorrection((bool)parameter->getNumericValue(0));
+            setDoTiltCorrection(parameter->getBoolValue(getName()));
         }
         else if (_orienter.handleParameter(parameter, getName())) {
             // pass
@@ -348,12 +322,7 @@ void Wind3D::parseParameters()
                         "must be zero since there is no GSL support");
         }
         else if (parameter->getName() == "metek") {
-            if ((parameter->getType() != Parameter::BOOL_PARAM &&
-                parameter->getType() != Parameter::INT_PARAM &&
-                parameter->getType() != Parameter::FLOAT_PARAM) ||
-                parameter->getLength() != 1)
-                throw n_u::InvalidParameterException(getName(),parameter->getName(), "'metek' should be a boolean or integer (FALSE=0,TRUE=1) of length 1");
-            setMetek(parameter->getNumericValue(0)); 
+            setMetek(parameter->getBoolValue(getName())); 
         }
         else if (parameter->getName() == "oversample");
         else if (parameter->getName() == "soniclog");

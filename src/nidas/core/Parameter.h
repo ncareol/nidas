@@ -67,6 +67,14 @@ public:
 
     virtual double getNumericValue(int i) const;
 
+    /**
+     * If this Parameter has float, int, or bool type and length 1, return the
+     * value cast to bool.  Otherwise, if the context name is not empty, raise
+     * an InvalidParameterException using the given context name, else return
+     * false.
+     */
+    virtual bool getBoolValue(const std::string& name = "") const;
+
     virtual std::string getStringValue(int i) const;
 
     /**
@@ -80,7 +88,7 @@ public:
      **/
     virtual void
     fromDOMElement(const xercesc::DOMElement*, const Dictionary* dict) = 0;
-                                                                                
+
 protected:
 
     Parameter(parType t): _name(),_type(t) {}
@@ -141,17 +149,17 @@ public:
      */
     void setValue(unsigned int i, const T& val)
     {
-	for (unsigned int j = _values.size(); j < i; j++) _values.push_back(T());
-	if (_values.size() > i) _values[i] = val;
-	else _values.push_back(val);
+        if (i+1 > _values.size())
+            _values.resize(i+1);
+        _values[i] = val;
     }
 
     /**
      * For parameters of length one, set its value.
      */
     void setValue(const T& val) {
-	_values.clear();
-        _values.push_back(val);
+        _values.resize(1);
+        _values[0] = val;
     }
 
     T getValue(int i) const { return _values[i]; }

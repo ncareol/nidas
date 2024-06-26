@@ -74,6 +74,21 @@ std::string Parameter::getStringValue(int i) const
     return ost.str();
 }
 
+bool Parameter::getBoolValue(const std::string& name) const
+{
+    if ((getType() != Parameter::BOOL_PARAM &&
+        getType() != Parameter::INT_PARAM &&
+        getType() != Parameter::FLOAT_PARAM) ||
+        getLength() != 1)
+    {
+        if (!name.empty())
+            throw n_u::InvalidParameterException(name, getName(),
+                "should be a boolean or integer (FALSE=0,TRUE=1) of length 1");
+        return false;
+    }
+    return (bool) getNumericValue(0);
+}
+
 
 Parameter* Parameter::createParameter(const xercesc::DOMElement* node,
                                       const Dictionary* dict)
