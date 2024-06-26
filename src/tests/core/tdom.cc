@@ -13,6 +13,17 @@ using boost::unit_test_framework::test_suite;
 using namespace nidas::core;
 using nidas::util::InvalidParameterException;
 
+
+namespace {
+    struct TFixture
+    {
+        ~TFixture() {
+            XMLImplementation::terminate();
+        }
+    };
+}
+
+
 struct TDomable: public DOMable
 {
     using DOMable::getHandledAttributes;
@@ -49,9 +60,10 @@ const char xml[] = R"(
 
 BOOST_AUTO_TEST_CASE(test_domable)
 {
+    TFixture fix;
     TDomable tdom;
 
-    xercesc::DOMDocument* doc{XMLParser::ParseString(xml)};
+    std::unique_ptr<xercesc::DOMDocument> doc{XMLParser::ParseString(xml)};
     xercesc::DOMElement* node{doc->getDocumentElement()};
 
     BOOST_TEST(tdom.getHandledAttributes().size() == 0);
@@ -94,9 +106,10 @@ struct TDomSub: public TDomable
 
 BOOST_AUTO_TEST_CASE(test_domable_subclass)
 {
+    TFixture fix;
     TDomSub tdom;
 
-    xercesc::DOMDocument* doc{XMLParser::ParseString(xml)};
+    std::unique_ptr<xercesc::DOMDocument> doc{XMLParser::ParseString(xml)};
     xercesc::DOMElement* node{doc->getDocumentElement()};
 
     tdom.fromDOMElement(node);
@@ -118,8 +131,10 @@ const char xml_wrong[] = R"(
 
 BOOST_AUTO_TEST_CASE(test_unhandled_attribute)
 {
+    TFixture fix;
     TDomSub tdom;
-    xercesc::DOMDocument* doc{XMLParser::ParseString(xml_wrong)};
+    std::unique_ptr<xercesc::DOMDocument>
+        doc{XMLParser::ParseString(xml_wrong)};
     xercesc::DOMElement* node{doc->getDocumentElement()};
 
     try
@@ -136,6 +151,7 @@ BOOST_AUTO_TEST_CASE(test_unhandled_attribute)
 
 BOOST_AUTO_TEST_CASE(test_cross_sites)
 {
+    TFixture fix;
     nidas::core::Project project;
     // the test is if it can be read without an expcetion due to duplicated
     // variable name, meaning the site attribute for the second sonic is
@@ -158,7 +174,7 @@ BOOST_AUTO_TEST_CASE(test_cross_sites)
     BOOST_TEST(sonic2->getTokenValue("SITE", site_token));
     BOOST_TEST(site_token == "t2");
 
-    // setting same site on both should trigger exception on validate()    
+    // setting same site on both should trigger exception on validate()
     try
     {
         sonic1->setSite(const_cast<Site*>(sonic2->getSite()));
