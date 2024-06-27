@@ -12,11 +12,35 @@ the [buster] branch for the changes on that branch.
 
 ## [master] - Unreleased on master branch
 
+### Changes related to M2HATS
+
+- NIDAS XML configurations can now associate a different site with a sensor
+  than the DSM which acquires that sensor.  If the site has been defined, the
+  name of that site can be added as an attribute to the sensor:
+
+  ```xml
+  <site name="t6" class="isff.GroundStation" suffix=".${SITE}"/>
+  <site name="t5" class="isff.GroundStation" suffix=".${SITE}">
+    <dsm IDREF="COREV" name="${SITE}" id="5">
+      ...
+      <serialSensor IDREF="CSAT3B" devicename="/dev/ttyDSM5" height="4m" id="60" site="t6"/>
+    </dsm>
+  </site>
+  ```
+
+  The sensor's variable names then contain the right site suffix as well as
+  important metadata like `height`.
+
+- `svnStatus()` has been removed.  It was only used by the NetCDF RPC outputs,
+  and it has been a while since the project configurations were under
+  subversion control.  See notes in `nc-server` about using the
+  `ISFS_CONFIG_VERSION` environment variable instead.
+
 ### data_stats and related improvements
 
-- `data_stats` JSON output includes problems detected in the statistics, so far
-  just sample rate mismatches and missing values.  The schema is still likely
-  to change.
+- `data_stats` JSON output includes problems detected in the statistics, so
+  far sample rate mismatches, missing values, and no samples.  The schema is
+  still likely to change.
 - The `-i` argument to programs like `data_dump` and `data_stats` now accepts
   '.' to select the DSM ID in the first sample in the data, and '/' to accept
   all IDs.  So this works to report on all of the samples from a single DSM:
