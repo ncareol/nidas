@@ -39,6 +39,11 @@ configuration.
 This does not yet include identifying the kind of sensor attached.  NIDAS only
 looks for a response according to the single sensor specified for the port.
 
+## [1.4.4] - Pending
+
+Serial sensors with a `timeout` setting will now be powered off when they time
+out, and powered on again in the first reopen attempt.
+
 ## [1.4.3] - 2026-08-12
 
 A bug was fixed in port configuration settings.  Sensors with `autoconfig`
@@ -131,6 +136,7 @@ to `v1.2-1721-g1ebc8bcd4`.
 
 <!-- Versions -->
 [buster]: https://github.com/ncareol/nidas/tree/buster
+[1.4.4]: https://github.com/ncareol/nidas/compare/v1.4.3...buster
 [1.4.3]: https://github.com/ncareol/nidas/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/ncareol/nidas/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/ncareol/nidas/compare/v1.4...v1.4.1

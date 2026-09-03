@@ -474,6 +474,19 @@ public:
 
     void applyPortConfig();
 
+    /**
+     * Turn on the hardware power for this serial sensor, if available. This
+     * and the powerOff() method are defined only for serial sensors at the at
+     * the moment, since those are the only sensors with hardware power
+     * control.  Maybe they should be virtual methods on DSMSensor.
+     */
+    void powerOn();
+
+    /**
+     * Turn off the hardware power for this serial sensor, if available.
+     */
+    void powerOff();
+
     /**@}*/
 
 protected:

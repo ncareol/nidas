@@ -100,15 +100,6 @@ IODevice* SerialSensor::buildIODevice() throw(n_u::IOException)
 
         _serialDevice = new SerialPortIODevice(getDeviceName(), _portconfig);
         device = _serialDevice;
-
-        // If this port has hardware power control, turn it on here.  Not sure
-        // this is the most logical place for this, but until there's a good
-        // reason to move it...
-        auto port = HardwareDevice::lookupDevice(getDeviceName());
-        if (auto ipower = port.iOutput())
-        {
-            ipower->on();
-        }
     }
 
     return device;
@@ -120,9 +111,35 @@ int SerialSensor::getUsecsPerByte() const
     return 0;
 }
 
+void SerialSensor::powerOn()
+{
+    auto port = HardwareDevice::lookupDevice(getDeviceName());
+    if (auto ipower = port.iOutput())
+    {
+        ILOG(("Power on: ") << getDeviceName());
+        ipower->on();
+    }
+}
+
+void SerialSensor::powerOff()
+{
+    auto port = HardwareDevice::lookupDevice(getDeviceName());
+    if (auto ipower = port.iOutput())
+    {
+        ILOG(("Power off: ") << getDeviceName());
+        ipower->off();
+    }
+}
+
 void SerialSensor::open(int flags)
     throw(n_u::IOException,n_u::InvalidParameterException)
 {
+    // If this port has hardware power control, make sure it is turned on. Do
+    // this on every open in case the sensor was turned off deliberately to be
+    // re-opened after a timeout.  See the note in close() about why power is
+    // _not_ turned off there, even though that would have better symmetry.
+    powerOn();
+
     flags |= O_NOCTTY;
     CharacterSensor::open(flags);
 
@@ -203,6 +220,11 @@ void SerialSensor::serPortFlush(const int flags)
 
 void SerialSensor::close() throw(n_u::IOException)
 {
+    // It might make sense to turn off the hardware power when closing the
+    // sensor, except that has not been past behavior and may cause confusion.
+    // Instead, the only time a sensor is powered off is when powerOff() is
+    // explicitly called, as is done when a sensor is being reopened after a
+    // timeout.
     shutdownPrompting();
     DSMSensor::close();
 }

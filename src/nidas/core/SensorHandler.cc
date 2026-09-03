@@ -1008,7 +1008,19 @@ void SensorHandler::handlePollingChange()
             DSMSensor* sensor = psensor->getDSMSensor();
             remove(psensor);
             if (_acceptingOpens)
+            {
+                // power off sensor before entering the reopen loop.  if the
+                // sensor open starts failing because the device has gone
+                // away, then no amount of power cycling will fix that.
+                // instead, power it off once here, then it will be powered on
+                // in the next open() call after the reopen delay.  if that
+                // open() does not succeed and keeps failing, then at least
+                // the sensor power is not being cycled every ten seconds.
+                if (auto serial = dynamic_cast<SerialSensor*>(sensor)) {
+                    serial->powerOff();
+                }
                 _opener.reopenSensor(sensor);
+            }
         }
 
         _pollingMutex.lock();
