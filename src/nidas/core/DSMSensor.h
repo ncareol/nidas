@@ -665,16 +665,6 @@ public:
         _nTimeouts++;
     }
 
-    void incrementRealTimeouts()
-    {
-    	++_nRealTimeouts;
-    }
-
-    uint64_t getRealTimeouts()
-    {
-    	return _nRealTimeouts;
-    }
-
     /**
      * Add a parameter to this DSMSensor. DSMSensor
      * will then own the pointer and will delete it
@@ -1551,11 +1541,6 @@ private:
      * once every 10 seconds, then no warning of any kind would be issued - ever.
      */
     int _nTimeouts;
-
-    /*
-     * This is incremented every time SampleScanner::readBuffer() is called with a timeout which is not met.
-     */
-    uint64_t _nRealTimeouts;
 
     static Looper* _looper;
 

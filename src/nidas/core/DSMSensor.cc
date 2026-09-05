@@ -115,7 +115,7 @@ DSMSensor::DSMSensor() :
     _duplicateIdOK(false),
     _applyVariableConversions(),
     _driverTimeTagUsecs(USECS_PER_TMSEC),
-    _nTimeouts(0), _nRealTimeouts(0),
+    _nTimeouts(0),
 	_lag(0),_station(-1),
 	_manufMetaData(), _configMetaData(),
 	_nSamplesToTest(DEFAULT_NUM_SAMPLES_TO_TEST),
@@ -395,12 +395,6 @@ void DSMSensor::open(int flags)
     if (!_scanner) _scanner = buildSampleScanner();
     _scanner->init();
     DLOG(("SampleScanner object built and initialized"));
-
-    /*
-     * initialize _nRealTimeouts back to zero
-     */
-    DLOG(("Initializing _nRealTimeouts to 0."));
-    _nRealTimeouts = 0;
 }
 
 void DSMSensor::close() throw(n_u::IOException)
